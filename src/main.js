@@ -3,6 +3,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import * as VueRouter from 'vue-router'
 import App from './App.vue'
+import VueGtag from "vue-gtag";
 import { useMainStore } from './stores/index'
 
 const routes = [
@@ -20,6 +21,11 @@ const app = createApp(App)
 
 app.use(pinia)
 app.use(router)
+app.use(VueGtag, {
+  config: {
+    id: import.meta.env.VITE_GA_MEASUREMENT_ID
+  }
+})
 
 const mainStore = useMainStore()
 const token = document.cookie
