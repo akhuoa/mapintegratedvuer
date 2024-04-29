@@ -22,6 +22,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import Tagging from '../../services/tagging.js'
 import { availableSpecies } from "../scripts/utilities.js";
 import { MultiFlatmapVuer } from "@abi-software/flatmapvuer";
 import ContentMixin from "../../mixins/ContentMixin";
@@ -245,6 +246,14 @@ export default {
           await this.toggleSyncMode();
       }
       this.updateProvCard();
+
+      // GA Tagging
+      // Event tracking for maps' species change
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_species_change',
+        'category': this.activeSpecies
+      });
     },
     multiFlatmapReady: function (flatmap) {
       if (flatmap) {

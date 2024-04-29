@@ -42,6 +42,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import Tagging from '../services/tagging.js'
 import DialogToolbarContent from "./DialogToolbarContent.vue";
 import EventBus from "./EventBus";
 import SplitDialog from "./SplitDialog.vue";
@@ -177,9 +178,27 @@ export default {
     searchChanged: function (data) {
       if (data && data.type == "query-update") {
         this.search = data.value;
+        if (this.search) {
+          // GA Tagging
+          // Event tracking for map action search/filter data
+          Tagging.sendEvent({
+            'event': 'interaction_event',
+            'event_name': 'portal_maps_action_search',
+            'category': this.search,
+            'location': 'map_sidebar_search'
+          });
+        }
       }
       if (data && data.type == "filter-update") {
         this.settingsStore.updateFacets(data.value);
+        // GA Tagging
+        // Event tracking for map action search/filter data
+        Tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': 'portal_maps_action_filter',
+          'category': 'filter',
+          'location': 'map_sidebar_filter'
+        });
       }
       if (data && data.type == "available-facets") {
         this.settingsStore.updateFacetLabels(data.value.labels);
