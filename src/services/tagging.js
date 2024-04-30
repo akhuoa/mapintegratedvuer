@@ -1,3 +1,5 @@
+import { event } from 'vue-gtag'
+
 export default {
   sendEvent: function(data) {
     const taggingData = {
@@ -16,6 +18,8 @@ export default {
     }
 
     console.table(taggingData)
+
+    event(taggingData.event_name, taggingData)
 
     // push to dataLayer for GTM
     if (typeof dataLayer !== 'undefined') {
