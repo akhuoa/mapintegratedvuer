@@ -328,6 +328,15 @@ export default {
   height: 100%;
   width:100%;
   z-index:1;
+
+  &.fit-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+  }
 }
 
 </style>

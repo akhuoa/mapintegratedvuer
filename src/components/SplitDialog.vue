@@ -73,10 +73,10 @@ export default {
       return refName;
     },
     getStyle: function(id) {
-      /* 
-        Set the style based on the position of the spltters 
+      /*
+        Set the style based on the position of the spltters
         Header is 30px in height and the splitter is 1px in
-        height/width. The width, height and positon of the 
+        height/width. The width, height and positon of the
         viewer should take that into account.
       */
       const refName = this.getRefsName(id);
