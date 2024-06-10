@@ -11,7 +11,7 @@
       :helpMode="helpMode"
       :helpModeActiveItem="helpModeActiveItem"
       :helpModeInitialIndex="-1"
-      :helpModeDialog="useHelpModeDialog"
+      :useHelpModeDialog="useHelpModeDialog"
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
       @shown-map-tooltip="onMapTooltipShown"
@@ -40,13 +40,15 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import { FlatmapVuer, HelpModeDialog } from "@abi-software/flatmapvuer";
+import { FlatmapVuer } from "@abi-software/flatmapvuer";
+import { HelpModeDialog } from '@abi-software/help-mode-dialog';
 import Tagging from '../../services/tagging.js';
 import EventBus from "../EventBus";
 import ContentMixin from "../../mixins/ContentMixin";
 import DynamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 import { transformObjToString } from '../scripts/utilities';
 import "@abi-software/flatmapvuer/dist/style.css";
+import '@abi-software/help-mode-dialog/dist/style.css';
 
 export default {
   name: "Flatmap",

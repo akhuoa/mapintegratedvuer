@@ -10,7 +10,7 @@
       :initial="entry.resource"
       :helpMode="helpMode"
       :helpModeActiveItem="helpModeActiveItem"
-      :helpModeDialog="useHelpModeDialog"
+      :useHelpModeDialog="useHelpModeDialog"
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
       @shown-map-tooltip="onMapTooltipShown"
@@ -42,7 +42,8 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import Tagging from '../../services/tagging.js';
-import { MultiFlatmapVuer, HelpModeDialog } from "@abi-software/flatmapvuer";
+import { MultiFlatmapVuer } from "@abi-software/flatmapvuer";
+import { HelpModeDialog } from '@abi-software/help-mode-dialog';
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
 import {
@@ -53,6 +54,7 @@ import {
 import DyncamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 
 import "@abi-software/flatmapvuer/dist/style.css";
+import '@abi-software/help-mode-dialog/dist/style.css';
 import YellowStar from "../../icons/yellowstar";
 
 const getOpenMapOptions = (species) => {

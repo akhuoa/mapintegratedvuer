@@ -14,7 +14,7 @@
       :traditional="true"
       :helpMode="helpMode"
       :helpModeActiveItem="helpModeActiveItem"
-      :helpModeDialog="useHelpModeDialog"
+      :useHelpModeDialog="useHelpModeDialog"
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
       @shown-map-tooltip="onMapTooltipShown"
@@ -43,10 +43,12 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import EventBus from "../EventBus";
-import { ScaffoldVuer, HelpModeDialog } from "@abi-software/scaffoldvuer";
+import { ScaffoldVuer } from "@abi-software/scaffoldvuer";
+import { HelpModeDialog } from "@abi-software/help-mode-dialog";
 import ContentMixin from "../../mixins/ContentMixin";
 
 import "@abi-software/scaffoldvuer/dist/style.css";
+import '@abi-software/help-mode-dialog/dist/style.css';
 
 export default {
   name: "Scaffold",
