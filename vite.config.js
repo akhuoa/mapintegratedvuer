@@ -3,6 +3,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
@@ -27,6 +28,30 @@ export default defineConfig(({ command, mode }) => {
             }),
           ],
           dts: 'src/components.d.ts',
+        }),
+        VitePWA({
+          registerType: 'autoUpdate',
+          devOptions: {
+            enabled: false,
+          },
+          manifest: {
+            name: 'Mapintegratedvuer',
+            short_name: 'mapintegratedvuer',
+            description: 'Map Integrated Vuer',
+            theme_color: '#ffffff',
+            icons: [
+              {
+                src: 'pwa-192x192.png',
+                sizes: '192x192',
+                type: 'image/png'
+              },
+              {
+                src: 'pwa-512x512.png',
+                sizes: '512x512',
+                type: 'image/png'
+              }
+            ]
+          }
         }),
 
         // https://github.com/antfu/unocss
