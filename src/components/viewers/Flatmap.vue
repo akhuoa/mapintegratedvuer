@@ -1,43 +1,47 @@
 <template>
-  <FlatmapVuer
-    :state="entry.state"
-    :entry="entry.resource"
-    @resource-selected="flatmaprResourceSelected(entry.type, $event)"
-    @pan-zoom-callback="flatmapPanZoomCallback"
-    :name="entry.resource"
-    style="height: 100%; width: 100%"
-    :minZoom="entry.minZoom"
-    :helpMode="helpMode"
-    :helpModeActiveItem="helpModeActiveItem"
-    :helpModeInitialIndex="-1"
-    @help-mode-last-item="onHelpModeLastItem"
-    @shown-tooltip="onTooltipShown"
-    @shown-map-tooltip="onMapTooltipShown"
-    :pathControls="true"
-    ref="flatmap"
-    @ready="flatmapReadyCall"
-    :displayMinimap="false"
-    :displayWarning="true"
-    :enableOpenMapUI="true"
-    :flatmapAPI="flatmapAPI"
-    :sparcAPI="apiLocation"
-    @open-map="openMap"
-    @pathway-selection-changed="onPathwaySelectionChanged"
-  />
+  <div class="viewer-container">
+    <FlatmapVuer
+      :state="entry.state"
+      :entry="entry.resource"
+      @resource-selected="flatmaprResourceSelected(entry.type, $event)"
+      @pan-zoom-callback="flatmapPanZoomCallback"
+      :name="entry.resource"
+      style="height: 100%; width: 100%"
+      :minZoom="entry.minZoom"
+      :helpMode="helpMode"
+      :helpModeActiveItem="helpModeActiveItem"
+      :helpModeInitialIndex="-1"
+      :helpModeDialog="useHelpModeDialog"
+      @help-mode-last-item="onHelpModeLastItem"
+      @shown-tooltip="onTooltipShown"
+      @shown-map-tooltip="onMapTooltipShown"
+      :pathControls="true"
+      ref="flatmap"
+      @ready="flatmapReadyCall"
+      :displayMinimap="false"
+      :displayWarning="true"
+      :enableOpenMapUI="true"
+      :flatmapAPI="flatmapAPI"
+      :sparcAPI="apiLocation"
+      @open-map="openMap"
+      @pathway-selection-changed="onPathwaySelectionChanged"
+    />
 
-  <HelpModeDialog
-    v-if="helpMode"
-    ref="flatmapHelp"
-    :flatmapRef="flatmapRef"
-    :lastItem="helpModeLastItem"
-    @show-next="onHelpModeShowNext"
-    @finish-help-mode="onFinishHelpMode"
-  />
+    <HelpModeDialog
+      v-if="helpMode && useHelpModeDialog"
+      ref="flatmapHelp"
+      :flatmapRef="flatmapRef"
+      :lastItem="helpModeLastItem"
+      @show-next="onHelpModeShowNext"
+      @finish-help-mode="onFinishHelpMode"
+    />
+  </div>
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
 import { FlatmapVuer, HelpModeDialog } from "@abi-software/flatmapvuer";
+import Tagging from '../../services/tagging.js';
 import EventBus from "../EventBus";
 import ContentMixin from "../../mixins/ContentMixin";
 import DynamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
@@ -62,11 +66,11 @@ export default {
       return this.$refs.flatmap.searchAndShowResult(term);
     },
     getFlatmapImp() {
-      return this.$refs.flatmap.mapImp;
+      return this.$refs.flatmap?.mapImp;
     },
     flatmaprResourceSelected: function (type, resource) {
-      this.$refs.flatmap.resourceSelected(
-        type, resource, (this.$refs.map.viewingMode === "Exploration"));
+      this.resourceSelected(
+        type, resource, (this.$refs.flatmap.viewingMode === "Exploration"));
 
       if (resource.eventType === 'click' && resource.feature.type === 'feature') {
         const eventData = {
@@ -82,7 +86,7 @@ export default {
           'event': 'interaction_event',
           'event_name': 'portal_maps_connectivity',
           'category': paramString,
-          "location": type + ' ' + this.$refs.map.viewingMode
+          "location": type + ' ' + this.$refs.flatmap.viewingMode
         });
       }
     },
@@ -158,7 +162,7 @@ export default {
   mounted: function() {
     this.getAvailableTerms();
     EventBus.on("markerUpdate", () => {
-      this.flatmapMarkerZoomUpdate(true, undefined);
+      this.flatmapMarkerUpdate(undefined);
     });
   },
 };
@@ -166,6 +170,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+.viewer-container {
+  width: 100%;
+  height: 100%;
+}
+
 :deep(.maplibregl-popup) {
   z-index: 3;
 }

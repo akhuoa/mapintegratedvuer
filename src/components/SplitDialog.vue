@@ -124,7 +124,7 @@ export default {
       return states;
     },
     setStyles: function(refName, rect) {
-      if (this.$refs && ('tabContainer' in this.$refs)) {
+      if (this.$refs && this.$refs.tabContainer) {
         const bound = this.$refs.tabContainer.getBoundingClientRect();
         const style = {};
         style["width"] = `${rect.width}px`;

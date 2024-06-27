@@ -1,40 +1,44 @@
 <template>
-  <ScaffoldVuer
-    :state="entry.state"
-    :url="entry.resource"
-    :region="entry.region"
-    @scaffold-selected="resourceSelected(entry.type, $event, true)"
-    @scaffold-highlighted="scaffoldHighlighted(entry.type, $event)"
-    @scaffold-navigated="scaffoldNavigated(entry.type, $event)"
-    @on-ready="scaffoldIsReady"
-    @open-map="openMap"
-    ref="scaffold"
-    :background-toggle="true"
-    :traditional="true"
-    :helpMode="helpMode"
-    :helpModeActiveItem="helpModeActiveItem"
-    @help-mode-last-item="onHelpModeLastItem"
-    @shown-tooltip="onTooltipShown"
-    @shown-map-tooltip="onMapTooltipShown"
-    :render="visible"
-    :display-latest-message="true"
-    :warning-message="warningMessage"
-    :display-minimap="false"
-    :display-markers="false"
-    :enableOpenMapUI="true"
-    :view-u-r-l="entry.viewUrl"
-    :markerLabels="markerLabels"
-    :flatmapAPI="flatmapAPI"
-  />
+  <div class="viewer-container">
+    <ScaffoldVuer
+      :state="entry.state"
+      :url="entry.resource"
+      :region="entry.region"
+      @scaffold-selected="resourceSelected(entry.type, $event, true)"
+      @scaffold-highlighted="scaffoldHighlighted(entry.type, $event)"
+      @scaffold-navigated="scaffoldNavigated(entry.type, $event)"
+      @on-ready="scaffoldIsReady"
+      @open-map="openMap"
+      ref="scaffold"
+      :background-toggle="true"
+      :traditional="true"
+      :helpMode="helpMode"
+      :helpModeActiveItem="helpModeActiveItem"
+      :helpModeDialog="useHelpModeDialog"
+      @help-mode-last-item="onHelpModeLastItem"
+      @shown-tooltip="onTooltipShown"
+      @shown-map-tooltip="onMapTooltipShown"
+      :render="visible"
+      :display-latest-message="true"
+      :warning-message="warningMessage"
+      :display-minimap="false"
+      :display-markers="false"
+      :enableOpenMapUI="true"
+      :view-u-r-l="entry.viewUrl"
+      :markerCluster="true"
+      :markerLabels="markerLabels"
+      :flatmapAPI="flatmapAPI"
+    />
 
-  <HelpModeDialog
-    v-if="helpMode"
-    ref="scaffoldHelp"
-    :scaffoldRef="scaffoldRef"
-    :lastItem="helpModeLastItem"
-    @show-next="onHelpModeShowNext"
-    @finish-help-mode="onFinishHelpMode"
-  />
+    <HelpModeDialog
+      v-if="helpMode && useHelpModeDialog"
+      ref="scaffoldHelp"
+      :scaffoldRef="scaffoldRef"
+      :lastItem="helpModeLastItem"
+      @show-next="onHelpModeShowNext"
+      @finish-help-mode="onFinishHelpMode"
+    />
+  </div>
 </template>
 
 <script>
@@ -152,6 +156,9 @@ export default {
         internalName: undefined,
       };
       if (resource && resource[0]) {
+        if (resource[0].data?.id === undefined || resource[0].data?.id === "") {
+          resource[0].data.id = resource[0].data?.group;
+        }
         result.internalName = resource[0].data.id;
         result.eventType = "highlighted";
       }
@@ -184,7 +191,7 @@ export default {
       }
     },
     markerLabels: function () {
-      return this.settingsStore.facetLabels;
+      return this.settingsStore.numberOfDatasetsForFacets;
     },
   },
   data: function () {
@@ -205,6 +212,11 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.viewer-container {
+  width: 100%;
+  height: 100%;
+}
+
 :deep(.message-popper) {
   white-space: unset;
   max-width: 200px;

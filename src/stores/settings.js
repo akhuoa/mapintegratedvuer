@@ -15,14 +15,17 @@ export const useSettingsStore = defineStore('settings', {
       nlLinkPrefix: undefined,
       rootUrl: undefined,
       facets: { species: [], gender: [], organ: [] },
-      facetLabels: [],
+      numberOfDatasetsForFacets: [],
       markers: [],
+      hoveredMarkers: [],
+      previousHoveredMarkers: null,
       featuredMarkers: [],
       featuredMarkerIdentifiers: [],
       featuredMarkerDois: [],
       featuredMarkerSpecies: [],
       featuredDatasetIdentifiers: [],
       helpDelay: 0,
+      useHelpModeDialog: false,
     }
   },
   getters: {
@@ -66,6 +69,10 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateMarkers(markers) {
       this.markers = markers;
+    },
+    updateHoveredMarkers(markers) {
+      this.previousHoveredMarkers = this.hoveredMarkers;
+      this.hoveredMarkers = markers;
     },
     updateFeatured(datasetIdentifiers) {
       this.featuredMarkerIdentifiers = new Array(datasetIdentifiers.length);
@@ -137,8 +144,11 @@ export const useSettingsStore = defineStore('settings', {
         }
       }
     },
-    updateFacetLabels(facetLabels) {
-      this.facetLabels = facetLabels;
-    }
+    updateNumberOfDatasetsForFacets(numberOfDatasetsForFacets) {
+      this.numberOfDatasetsForFacets = numberOfDatasetsForFacets;
+    },
+    updateUseHelpModeDialog(helpModeOption) {
+      this.useHelpModeDialog = helpModeOption;
+    },
   }
 });

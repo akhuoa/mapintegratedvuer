@@ -1,39 +1,42 @@
 <template>
-  <MultiFlatmapVuer
-    :availableSpecies="availableSpecies"
-    @flatmapChanged="flatmapChanged"
-    @ready="multiFlatmapReady"
-    :state="entry.state"
-    @resource-selected="flatmaprResourceSelected(entry.type, $event)"
-    style="height: 100%; width: 100%"
-    :initial="entry.resource"
-    :helpMode="helpMode"
-    :helpModeActiveItem="helpModeActiveItem"
-    @help-mode-last-item="onHelpModeLastItem"
-    @shown-tooltip="onTooltipShown"
-    @shown-map-tooltip="onMapTooltipShown"
-    ref="multiflatmap"
-    :displayMinimap="true"
-    :showStarInLegend="showStarInLegend"
-    :enableOpenMapUI="true"
-    :openMapOptions="openMapOptions"
-    :flatmapAPI="flatmapAPI"
-    :sparcAPI="apiLocation"
-    @pan-zoom-callback="flatmapPanZoomCallback"
-    @open-map="openMap"
-    @finish-help-mode="endHelp"
-    @pathway-selection-changed="onPathwaySelectionChanged"
-    @open-pubmed-url="onOpenPubmedUrl"
-  />
+  <div class="viewer-container">
+    <MultiFlatmapVuer
+      :availableSpecies="availableSpecies"
+      @flatmapChanged="flatmapChanged"
+      @ready="multiFlatmapReady"
+      :state="entry.state"
+      @resource-selected="flatmaprResourceSelected(entry.type, $event)"
+      style="height: 100%; width: 100%"
+      :initial="entry.resource"
+      :helpMode="helpMode"
+      :helpModeActiveItem="helpModeActiveItem"
+      :helpModeDialog="useHelpModeDialog"
+      @help-mode-last-item="onHelpModeLastItem"
+      @shown-tooltip="onTooltipShown"
+      @shown-map-tooltip="onMapTooltipShown"
+      ref="multiflatmap"
+      :displayMinimap="true"
+      :showStarInLegend="showStarInLegend"
+      :enableOpenMapUI="true"
+      :openMapOptions="openMapOptions"
+      :flatmapAPI="flatmapAPI"
+      :sparcAPI="apiLocation"
+      @pan-zoom-callback="flatmapPanZoomCallback"
+      @open-map="openMap"
+      @finish-help-mode="endHelp"
+      @pathway-selection-changed="onPathwaySelectionChanged"
+      @open-pubmed-url="onOpenPubmedUrl"
+    />
 
-  <HelpModeDialog
-    v-if="helpMode"
-    ref="multiflatmapHelp"
-    :multiflatmapRef="multiflatmapRef"
-    :lastItem="helpModeLastItem"
-    @show-next="onHelpModeShowNext"
-    @finish-help-mode="onFinishHelpMode"
-  />
+    <HelpModeDialog
+      v-if="helpMode && useHelpModeDialog"
+      ref="multiflatmapHelp"
+      :multiflatmapRef="multiflatmapRef"
+      :lastItem="helpModeLastItem"
+      @show-next="onHelpModeShowNext"
+      @finish-help-mode="onFinishHelpMode"
+    />
+  </div>
 </template>
 
 <script>
@@ -152,7 +155,6 @@ export default {
           payload: payload,
           type: this.entry.type,
         };
-        this.flatmapMarkerZoomUpdate(false, undefined);
         this.$emit("resource-selected", result);
       }
     },
@@ -242,7 +244,6 @@ export default {
           this.$refs.multiflatmap
             .getCurrentFlatmap()
             .mapImp.panZoomTo(origin, [sW, sH]);
-          this.flatmapMarkerZoomUpdate(false, undefined);
         }
       }
     },
@@ -319,12 +320,12 @@ export default {
         flatmap.enablePanZoomEvents(true); // Use zoom events for dynamic markers
         this.flatmapReady = true;
         const flatmapImp = flatmap.mapImp;
-        this.flatmapMarkerZoomUpdate(true, flatmapImp);
+        this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
       }
     },
     getFlatmapImp: function () {
-      if (this.entry.type === "MultiFlatmap" && this.flatmapReady) {
+      if (this.entry.type === "MultiFlatmap" && this.flatmapReady && this.$refs.multiflatmap) {
         return this.$refs.multiflatmap.getCurrentFlatmap()["mapImp"];
       } else {
         return undefined;
@@ -341,11 +342,13 @@ export default {
       EventBus.emit("PopoverActionClick", returnedAction);
     },
     restoreFeaturedMarkers: function (flatmap) {
+
       this.settingsStore.resetFeaturedMarkerIdentifier();
       const markers = this.settingsStore.featuredMarkers;
-      this.updateFeatureMarkers(markers, flatmap);
+      this.updateFeaturedMarkers(markers, flatmap);
     },
-    updateFeatureMarkers: function (markers, flatmap) {
+    // updateFeaturedMarkers will step through the featured markers and add them to the map
+    updateFeaturedMarkers: function (markers, flatmap) {
       this.showStarInLegend = false; // will show if we have a featured marker
       for (let index = 0; index < markers.length; ++index) {
         if (markers[index]) {
@@ -361,6 +364,7 @@ export default {
         }
       }
     },
+    // addFeaturedMarker: add a featured marker to the map at the specified uberon location
     addFeaturedMarker: function (marker, index, flatmap) {
       const markerSpecies =
         this.settingsStore.featuredMarkerSpecies[index];
@@ -380,7 +384,8 @@ export default {
         // add it to the flatmap
         const markerIdentifier = flatmapImp.addMarker(marker, {
           element: wrapperElement,
-          className: "highlight-marker"
+          className: "highlight-marker",
+          cluster: false
         });
 
         // update the store with the marker identifier
@@ -411,7 +416,7 @@ export default {
         return;
       }
 
-      this.updateFeatureMarkers(markers, undefined);
+      this.updateFeaturedMarkers(markers, undefined);
     },
   },
   mounted: function () {
@@ -419,7 +424,9 @@ export default {
     this.getFeaturedDatasets();
 
     EventBus.on("markerUpdate", () => {
-      this.flatmapMarkerZoomUpdate(true, undefined);
+      if (this.flatmapReady) {
+        this.flatmapMarkerUpdate(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
+      }
     });
   },
 };
@@ -427,6 +434,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+
+.viewer-container {
+  width: 100%;
+  height: 100%;
+}
 
 :deep(.maplibregl-popup) {
   z-index: 3;
@@ -436,6 +448,12 @@ export default {
   &.standard-marker {
     cursor: pointer !important;
     z-index: 2;
+  }
+  &.hovered {
+    div {
+      scale: 2;
+      transform: translate(0px, -5px);
+    }
   }
   &.highlight-marker {
     visibility: visible !important;
