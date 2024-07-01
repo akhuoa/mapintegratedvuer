@@ -26,7 +26,7 @@
           <map-svg-icon icon="help" class="sync-help header-icon"/>
         </template>
         <template #default>
-            When in Linked mode the two maps will interact 
+            When in Linked mode the two maps will interact
             <br>
             together. Select an organ in one and it will
             <br>
@@ -38,6 +38,18 @@
     </div>
 
     <el-row class="icon-group">
+      <el-popover
+        class="tooltip"
+        content="Fit Viewport"
+        placement="bottom-end"
+        :teleported=false
+        trigger="hover"
+        popper-class="header-popper"
+      >
+        <template #reference>
+          <map-svg-icon :icon="isFitViewport ? 'undock' : 'dock'" class="header-icon" @click="onFitViewport" />
+        </template>
+      </el-popover>
       <el-popover
         v-if="activeViewRef"
         :virtual-ref="activeViewRef"
@@ -259,6 +271,7 @@ export default {
   data: function() {
     return {
       isFullscreen: false,
+      isFitViewport: false,
       loadingLink: true,
       shareLinkDisplay: false,
       independent: true,
@@ -278,6 +291,12 @@ export default {
     onFullscreen: function() {
       this.$emit("onFullscreen");
       this.isFullscreen = !this.isFullscreen;
+    },
+    onFitViewport: function () {
+      if (this.$root.$refs.map.$el) {
+        this.isFitViewport = !this.isFitViewport;
+        this.$root.$refs.map.$el.classList.toggle('fit-screen');
+      }
     },
     close: function() {
       this.$emit("close");
@@ -372,7 +391,7 @@ export default {
   &:hover, &:focus {
     color:#FFFFFF;
     background-color:$app-primary-color;
-    box-shadow: -3px 2px 4px #000000; 
+    box-shadow: -3px 2px 4px #000000;
   }
 }
 
