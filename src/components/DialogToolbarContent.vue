@@ -26,7 +26,7 @@
           <map-svg-icon icon="help" class="sync-help header-icon"/>
         </template>
         <template #default>
-            When in Linked mode the two maps will interact 
+            When in Linked mode the two maps will interact
             <br>
             together. Select an organ in one and it will
             <br>
@@ -38,6 +38,22 @@
     </div>
 
     <el-row class="icon-group">
+      <el-popover
+        class="tooltip"
+        :content="isFitViewport ? 'Exit fit viewport' : 'Fit to viewport'"
+        placement="bottom-end"
+        :teleported=false
+        trigger="hover"
+        popper-class="header-popper"
+      >
+        <template #reference>
+          <map-svg-icon
+            :icon="isFitViewport ? 'undock' : 'dock'"
+            class="header-icon"
+            @click="toggleMapFitView"
+          />
+        </template>
+      </el-popover>
       <el-popover
         v-if="activeViewRef"
         :virtual-ref="activeViewRef"
@@ -259,6 +275,7 @@ export default {
   data: function() {
     return {
       isFullscreen: false,
+      isFitViewport: false,
       loadingLink: true,
       shareLinkDisplay: false,
       independent: true,
@@ -278,6 +295,21 @@ export default {
     onFullscreen: function() {
       this.$emit("onFullscreen");
       this.isFullscreen = !this.isFullscreen;
+    },
+    toggleMapFitView: function () {
+      const toolbarEl = this.$el;
+      const mapContainerEl = toolbarEl.closest('.mapcontent');
+      if (mapContainerEl) {
+        if (this.isFitViewport) {
+          this.isFitViewport = false;
+          mapContainerEl.classList.remove('fit-screen');
+          document.body.classList.remove('el-popup-parent--hidden');
+        } else {
+          this.isFitViewport = true;
+          mapContainerEl.classList.add('fit-screen');
+          document.body.classList.add('el-popup-parent--hidden');
+        }
+      }
     },
     close: function() {
       this.$emit("close");
@@ -372,7 +404,7 @@ export default {
   &:hover, &:focus {
     color:#FFFFFF;
     background-color:$app-primary-color;
-    box-shadow: -3px 2px 4px #000000; 
+    box-shadow: -3px 2px 4px #000000;
   }
 }
 
