@@ -40,14 +40,18 @@
     <el-row class="icon-group">
       <el-popover
         class="tooltip"
-        content="Fit Viewport"
+        :content="isFitViewport ? 'Exit fit viewport' : 'Fit to viewport'"
         placement="bottom-end"
         :teleported=false
         trigger="hover"
         popper-class="header-popper"
       >
         <template #reference>
-          <map-svg-icon :icon="isFitViewport ? 'undock' : 'dock'" class="header-icon" @click="onFitViewport" />
+          <map-svg-icon
+            :icon="isFitViewport ? 'undock' : 'dock'"
+            class="header-icon"
+            @click="toggleMapFitView"
+          />
         </template>
       </el-popover>
       <el-popover
@@ -292,10 +296,19 @@ export default {
       this.$emit("onFullscreen");
       this.isFullscreen = !this.isFullscreen;
     },
-    onFitViewport: function () {
-      if (this.$root.$refs.map.$el) {
-        this.isFitViewport = !this.isFitViewport;
-        this.$root.$refs.map.$el.classList.toggle('fit-screen');
+    toggleMapFitView: function () {
+      const toolbarEl = this.$el;
+      const mapContainerEl = toolbarEl.closest('.mapcontent');
+      if (mapContainerEl) {
+        if (this.isFitViewport) {
+          this.isFitViewport = false;
+          mapContainerEl.classList.remove('fit-screen');
+          document.body.classList.remove('el-popup-parent--hidden');
+        } else {
+          this.isFitViewport = true;
+          mapContainerEl.classList.add('fit-screen');
+          document.body.classList.add('el-popup-parent--hidden');
+        }
       }
     },
     close: function() {
