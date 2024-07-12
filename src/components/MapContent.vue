@@ -83,6 +83,14 @@ export default {
       type: Boolean,
       default: false,
     },
+    /**
+     * The option to show connectivity info in sidebar.
+     * Default is `true`. Set `false` to show as popup on map.
+     */
+    connectivityInfoSidebar: {
+      type: Boolean,
+      default: true,
+    },
   },
   data: function () {
     return {
@@ -319,6 +327,7 @@ export default {
     }
     this.isReady = true;
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
+    this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
   }
 }
 

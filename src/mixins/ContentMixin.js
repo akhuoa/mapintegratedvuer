@@ -41,6 +41,9 @@ export default {
     useHelpModeDialog() {
       return this.settingsStore.useHelpModeDialog;
     },
+    connectivityInfoSidebar() {
+      return this.settingsStore.connectivityInfoSidebar;
+    },
   },
   mounted: function () {
     EventBus.on("startHelp", () => {
@@ -66,6 +69,8 @@ export default {
         EventBus.emit("OpenNewMap", type);
         this.trackOpenMap(`open_new_${type}_map`);
       }
+
+      this.onConnectivityInfoClose();
     },
     trackOpenMap: function (category) {
       // GA Tagging
@@ -486,6 +491,34 @@ export default {
         this.endHelp();
       }
     },
+    mapHoverHighlight: function (mapImp) {
+      if (this.visible) {
+        const hoverAnatomies = this.settingsStore.hoverAnatomies;
+        const hoverOrgans = this.settingsStore.hoverOrgans;
+        if (hoverAnatomies.length || hoverOrgans.length) {
+          clearTimeout(this.hoverDelay);
+          if (this.multiflatmapRef || this.flatmapRef) {
+            mapImp?.zoomToFeatures(hoverAnatomies, { noZoomIn: true });
+          } else if (this.scaffoldRef) {
+            mapImp?.changeHighlightedByName(hoverOrgans, "", false);
+          }
+        } else {
+          this.hoverDelay = setTimeout(() => {
+            if (this.multiflatmapRef || this.flatmapRef) {
+              mapImp?.clearSearchResults();
+            } else if (this.scaffoldRef) {
+              mapImp?.changeHighlightedByName(hoverOrgans, "", false);
+            }
+          }, 500);
+        }
+      }
+    },
+    onConnectivityInfoOpen: function (connectivityInfoData) {
+      EventBus.emit('connectivity-info-open', connectivityInfoData);
+    },
+    onConnectivityInfoClose: function () {
+      EventBus.emit('connectivity-info-close');
+    },
   },
   data: function () {
     return {
@@ -506,6 +539,7 @@ export default {
       idNamePair: {},
       scaffoldLoaded: false,
       isInHelp: false,
+      hoverDelay: undefined
     };
   },
   created: function () {
