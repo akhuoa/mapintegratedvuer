@@ -25,6 +25,7 @@
       :display-markers="false"
       :enableOpenMapUI="true"
       :view-u-r-l="entry.viewUrl"
+      :markerCluster="true"
       :markerLabels="markerLabels"
       :flatmapAPI="flatmapAPI"
     />
@@ -43,10 +44,12 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import EventBus from "../EventBus";
-import { ScaffoldVuer, HelpModeDialog } from "@abi-software/scaffoldvuer";
 import ContentMixin from "../../mixins/ContentMixin";
 
+import { ScaffoldVuer } from "@abi-software/scaffoldvuer";
 import "@abi-software/scaffoldvuer/dist/style.css";
+import { HelpModeDialog } from '@abi-software/map-utilities'
+import '@abi-software/map-utilities/dist/style.css'
 
 export default {
   name: "Scaffold",
@@ -155,6 +158,9 @@ export default {
         internalName: undefined,
       };
       if (resource && resource[0]) {
+        if (resource[0].data?.id === undefined || resource[0].data?.id === "") {
+          resource[0].data.id = resource[0].data?.group;
+        }
         result.internalName = resource[0].data.id;
         result.eventType = "highlighted";
       }
@@ -187,7 +193,7 @@ export default {
       }
     },
     markerLabels: function () {
-      return this.settingsStore.facetLabels;
+      return this.settingsStore.numberOfDatasetsForFacets;
     },
   },
   data: function () {
@@ -202,6 +208,11 @@ export default {
       this.$refs.scaffold.$module.scene.getZincCameraControls();
     EventBus.on("startHelp", () => {
       this.startHelp();
+    });
+    EventBus.on("hoverUpdate", () => {
+      if (this.scaffoldLoaded) {
+        this.mapHoverHighlight(this.$refs.scaffold);
+      }
     });
   },
 };

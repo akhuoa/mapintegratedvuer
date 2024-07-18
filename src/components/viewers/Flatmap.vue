@@ -15,6 +15,9 @@
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
       @shown-map-tooltip="onMapTooltipShown"
+      @connectivity-info-open="onConnectivityInfoOpen"
+      @connectivity-info-close="onConnectivityInfoClose"
+      :connectivityInfoSidebar="connectivityInfoSidebar"
       :pathControls="true"
       ref="flatmap"
       @ready="flatmapReadyCall"
@@ -40,13 +43,16 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import { FlatmapVuer, HelpModeDialog } from "@abi-software/flatmapvuer";
 import Tagging from '../../services/tagging.js';
 import EventBus from "../EventBus";
 import ContentMixin from "../../mixins/ContentMixin";
 import DynamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 import { transformObjToString } from '../scripts/utilities';
+
+import { FlatmapVuer } from "@abi-software/flatmapvuer";
 import "@abi-software/flatmapvuer/dist/style.css";
+import { HelpModeDialog } from '@abi-software/map-utilities'
+import '@abi-software/map-utilities/dist/style.css'
 
 export default {
   name: "Flatmap",
@@ -162,7 +168,20 @@ export default {
   mounted: function() {
     this.getAvailableTerms();
     EventBus.on("markerUpdate", () => {
-      this.flatmapMarkerZoomUpdate(true, undefined);
+      this.flatmapMarkerUpdate(undefined);
+    });
+    EventBus.on("hoverUpdate", () => {
+      this.mapHoverHighlight(this.$refs.flatmap.mapImp);
+    });
+    EventBus.on('show-connectivity', (payload) => {
+      const { featureIds, offset } = payload;
+      const currentFlatmap = this.$refs.flatmap;
+      if (currentFlatmap) {
+        currentFlatmap.moveMap(featureIds, {
+          offsetX: offset ? -150 : 0,
+          zoom: 4,
+        });
+      }
     });
   },
 };

@@ -9,11 +9,11 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig(({ command, mode }) => {
   const config = {
     css: {
-        preprocessorOptions: {
-          scss: {
-            additionalData: `@use './src/assets/styles' as *;`
-          },
+      preprocessorOptions: {
+        scss: {
+          additionalData: `@use './src/assets/styles' as *;`,
         },
+      },
     },
     plugins: [
         vue(),
@@ -54,42 +54,26 @@ export default defineConfig(({ command, mode }) => {
           }
         }),
 
-        // https://github.com/antfu/unocss
-        // see unocss.config.ts for config
+      // https://github.com/antfu/unocss
+      // see unocss.config.ts for config
     ],
-    build: {
-      lib: {
-        entry: path.resolve(__dirname, "./src/components/index.js"),
-        name: "MapintegratedVuer",
-        fileName: 'mapintegratedvuer',
-      },
-      rollupOptions: {
-        external: ["vue", "pinia"],
-        output: {
-          globals: {
-            vue: "Vue",
-            pinia: "pinia"
-          },
-        },
-      },
-    },
     // for cypress component test
     // to prevent reloading after optimized dependencies changed
     optimizeDeps: {
-      exclude: ['vue-router'],
+      exclude: ["vue-router"],
     },
   };
 
-  if (command === 'serve') {
-    config.server =  {
+  if (command === "serve") {
+    config.server = {
       port: 8081,
     };
     config.define = {
-      'process.env.HTTP_PROXY': 8081,
-      global: 'globalThis',
+      "process.env.HTTP_PROXY": 8081,
+      global: "globalThis",
       // If you want to exposes all env variables, which is not recommended
       // 'process.env': env
     };
-  };
+  }
   return config;
-})
+});

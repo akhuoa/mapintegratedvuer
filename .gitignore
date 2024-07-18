@@ -13,5 +13,4 @@ test/src/
 docs/.vitepress/dist
 docs/.vitepress/cache
 docs/components
-test-html
-dev-dist
+.vitepress

@@ -41,6 +41,9 @@ export default {
     useHelpModeDialog() {
       return this.settingsStore.useHelpModeDialog;
     },
+    connectivityInfoSidebar() {
+      return this.settingsStore.connectivityInfoSidebar;
+    },
   },
   mounted: function () {
     EventBus.on("startHelp", () => {
@@ -66,6 +69,8 @@ export default {
         EventBus.emit("OpenNewMap", type);
         this.trackOpenMap(`open_new_${type}_map`);
       }
+
+      this.onConnectivityInfoClose();
     },
     trackOpenMap: function (category) {
       // GA Tagging
@@ -162,7 +167,6 @@ export default {
               flatmap.clearSearchResults();
             }
           } else if (resource.feature.type == "feature") {
-            EventBus.emit('provenance-popup', resource)
             // Do no open scaffold in sync map
             if (this.syncMode) {
               fireResourceSelected = true;
@@ -176,6 +180,9 @@ export default {
         }
       } else if (type == "Scaffold") {
         if (resource && resource[0]) {
+          if (resource[0].data?.id === undefined || resource[0].data?.id === "") {
+            resource[0].data.id = resource[0].data?.group;
+          }
           result.internalName = resource[0].data.id;
           // Facet search if marker is clicked
           if (resource[0].data.lastActionOnMarker === true) {
@@ -269,6 +276,7 @@ export default {
       }
       return { id, name };
     },
+    // Get the species and andaotmy info for the featured datasets
     getDatasetAnatomyInfo: function (identifier) {
       fetch(`${this.apiLocation}dataset_info/anatomy?identifier=${identifier}`)
         .then(response => response.json())
@@ -301,7 +309,8 @@ export default {
           } catch (error) {
             markerSpecies = undefined;
           }
-          this.updateFeatureMarkers([markerCurie], undefined)
+          // can test the featured marker by uncommenting the line below:
+          // markerSpecies = "Rat"
           this.settingsStore.updateFeaturedMarker({
             identifier,
             marker: markerCurie,
@@ -413,7 +422,7 @@ export default {
           });
       }
     },
-    flatmapMarkerZoomUpdate() {
+    flatmapMarkerUpdate() {
       return;
     },
     onResize: function () {
@@ -482,6 +491,34 @@ export default {
         this.endHelp();
       }
     },
+    mapHoverHighlight: function (mapImp) {
+      if (this.visible) {
+        const hoverAnatomies = this.settingsStore.hoverAnatomies;
+        const hoverOrgans = this.settingsStore.hoverOrgans;
+        if (hoverAnatomies.length || hoverOrgans.length) {
+          clearTimeout(this.hoverDelay);
+          if (this.multiflatmapRef || this.flatmapRef) {
+            mapImp?.zoomToFeatures(hoverAnatomies, { noZoomIn: true });
+          } else if (this.scaffoldRef) {
+            mapImp?.changeHighlightedByName(hoverOrgans, "", false);
+          }
+        } else {
+          this.hoverDelay = setTimeout(() => {
+            if (this.multiflatmapRef || this.flatmapRef) {
+              mapImp?.clearSearchResults();
+            } else if (this.scaffoldRef) {
+              mapImp?.changeHighlightedByName(hoverOrgans, "", false);
+            }
+          }, 500);
+        }
+      }
+    },
+    onConnectivityInfoOpen: function (connectivityInfoData) {
+      EventBus.emit('connectivity-info-open', connectivityInfoData);
+    },
+    onConnectivityInfoClose: function () {
+      EventBus.emit('connectivity-info-close');
+    },
   },
   data: function () {
     return {
@@ -502,6 +539,7 @@ export default {
       idNamePair: {},
       scaffoldLoaded: false,
       isInHelp: false,
+      hoverDelay: undefined
     };
   },
   created: function () {
