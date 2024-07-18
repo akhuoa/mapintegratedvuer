@@ -15,43 +15,43 @@ export default defineConfig(({ command, mode }) => {
       },
     },
     plugins: [
-        vue(),
-        Components({
-          // allow auto load markdown components under `./src/components/`
-          extensions: ["vue", "md"],
-          // allow auto import and register components used in markdown
-          include: [/\.vue$/, /\.vue\?vue/, /\.md$/],
-          resolvers: [
-            ElementPlusResolver({
-              importStyle: "sass",
-            }),
-          ],
-          dts: "src/components.d.ts",
-        }),
-        VitePWA({
-          registerType: 'autoUpdate',
-          devOptions: {
-            enabled: false,
-          },
-          manifest: {
-            name: 'Mapintegratedvuer',
-            short_name: 'mapintegratedvuer',
-            description: 'Map Integrated Vuer',
-            theme_color: '#ffffff',
-            icons: [
-              {
-                src: 'pwa-192x192.png',
-                sizes: '192x192',
-                type: 'image/png'
-              },
-              {
-                src: 'pwa-512x512.png',
-                sizes: '512x512',
-                type: 'image/png'
-              }
-            ]
-          }
-        }),
+      vue(),
+      Components({
+        // allow auto load markdown components under `./src/components/`
+        extensions: ["vue", "md"],
+        // allow auto import and register components used in markdown
+        include: [/\.vue$/, /\.vue\?vue/, /\.md$/],
+        resolvers: [
+          ElementPlusResolver({
+            importStyle: "sass",
+          }),
+        ],
+        dts: "src/components.d.ts",
+      }),
+      VitePWA({
+        registerType: 'autoUpdate',
+        devOptions: {
+          enabled: false,
+        },
+        manifest: {
+          name: 'Mapintegratedvuer',
+          short_name: 'mapintegratedvuer',
+          description: 'Map Integrated Vuer',
+          theme_color: '#ffffff',
+          icons: [
+            {
+              src: 'pwa-192x192.png',
+              sizes: '192x192',
+              type: 'image/png'
+            },
+            {
+              src: 'pwa-512x512.png',
+              sizes: '512x512',
+              type: 'image/png'
+            }
+          ]
+        }
+      }),
 
       // https://github.com/antfu/unocss
       // see unocss.config.ts for config
