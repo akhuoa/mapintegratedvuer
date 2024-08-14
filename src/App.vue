@@ -11,22 +11,22 @@
           :teleported=false
           >
             <div class="options-container">
-              <el-row class="row" :gutter="20">
+              <div>
                 <el-button @click="saveSettings()" size="small">Save Settings</el-button>
                 <el-button @click="restoreSettings()" size="small">Restore Settings</el-button>
                 <el-button @click="getShareableURL()" size="small">Get Link</el-button>
-              </el-row>
-              <el-row class="row" :gutter="20">
+              </div>
+              <div>
                 <el-button @click="setMultiFlatmap()" size="small">Set MultiFlatmap</el-button>
                 <el-button @click="setLegacyMultiFlatmap()" size="small">Set Legacy MultiFlatmap</el-button>
                 <el-button @click="setScaffold()" size="small">Set To Scaffold</el-button>
                 <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
                 <el-button @click="setSearch()" size="small">Set Search</el-button>
-              </el-row>
+              </div>
             </div>
             <template #reference>
 
-                <el-button class="options-button" :icon="ElIconSetting">Options</el-button>
+                <el-button class="options-button" size="small" :icon="ElIconSetting">Options</el-button>
 
             </template>
         </el-popover>
@@ -221,14 +221,12 @@ body {
 }
 
 .map-app {
-  position:absolute;
-  height: calc(100% - 104px);
-  width:calc(100% - 54px);
-  margin-top:20px;
-  margin-left:26px;
-  margin-right:26px;
-  border: solid 1px #dcdfe6;
-  box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.06);
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
 }
 
 .popover{
@@ -249,12 +247,37 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height:50px;
-}
+  width: 200px;
+  position: fixed;
+  top: 3px;
+  left: 50%;
+  margin-left: -100px;
+  z-index: 99;
 
+  .options-button {
+    border-color: rgba(0,0,0,0.2);
+    box-shadow: 0px 0px 6px 0px rgba(0,0,0,0.2);
+  }
+}
 
 .options-container{
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .el-button + .el-button {
+    margin: 0;
+  }
+
+  > div {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
 }
 
 .map-icon {
