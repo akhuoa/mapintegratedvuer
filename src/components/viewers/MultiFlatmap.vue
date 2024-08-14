@@ -329,6 +329,7 @@ export default {
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
+        EventBus.emit("mapLoaded", flatmap);
       }
     },
     getFlatmapImp: function () {
@@ -404,6 +405,13 @@ export default {
       }
       return false;
     },
+    /**
+     * Change the view mode of the current flatmap
+     */
+    changeViewingMode: function (modeName) {
+      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+      flatmap.changeViewingMode(modeName);
+    },
   },
   computed: {
     facetSpecies() {
@@ -427,9 +435,7 @@ export default {
     },
   },
   mounted: function () {
-    this.getAvailableTerms();
     this.getFeaturedDatasets();
-
     EventBus.on('show-connectivity', (payload) => {
       const { featureIds, offset } = payload;
       if (this.flatmapReady && this.$refs.multiflatmap) {
@@ -480,7 +486,7 @@ export default {
     z-index: 1;
     div {
       scale: 0.5;
-      transform: translate(45px, -7px);
+      width: 0;
     }
   }
 }

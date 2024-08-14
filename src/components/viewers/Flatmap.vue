@@ -100,10 +100,8 @@ export default {
       let provClone = {id: this.entry.id, prov: this.getFlatmapImp().provenance}; //create clone of provenance and add id
       EventBus.emit("mapImpProv", provClone); // send clone to context card
       this.$emit("flatmap-provenance-ready", provClone);
-      this.getAvailableTerms();
-      if (this.entry.resource === "FunctionalConnectivity"){
-        this.flatmapReadyForMarkerUpdates(flatmap);
-      }
+      this.flatmapReadyForMarkerUpdates(flatmap);
+      EventBus.emit("mapLoaded", flatmap);
     },
     onPathwaySelectionChanged: function (data) {
       const { label, property, checked, selectionsTitle } = data;
@@ -159,6 +157,9 @@ export default {
         flatmap.clearSearchResults();
       }
     },
+    changeViewingMode: function (modeName) {
+      this.$refs.flatmap.changeViewingMode(modeName);
+    },
   },
   computed: {
     facetSpecies() {
@@ -166,7 +167,6 @@ export default {
     },
   },
   mounted: function() {
-    this.getAvailableTerms();
     EventBus.on("markerUpdate", () => {
       this.flatmapMarkerUpdate(undefined);
     });

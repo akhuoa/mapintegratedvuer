@@ -308,6 +308,7 @@ export default {
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null
     }
     this.splitFlowStore?.reset();
+    this.splitFlowStore?.getAvailableTerms(this.settingsStore.sparcApi);
   },
   mounted: async function() {
     EventBus.on("updateShareLinkRequested", () => {
@@ -325,6 +326,12 @@ export default {
     if (!this.state) {
       this.initialState = await initialState(this.startingMap, this.options.sparcApi);
     }
+    EventBus.on("mapLoaded", (map) => {
+      /**
+       * This event emit when the map is loaded.
+       */
+      this.$emit("mapLoaded", map);
+    });
     this.isReady = true;
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
     this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
