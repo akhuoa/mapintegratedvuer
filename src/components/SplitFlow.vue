@@ -569,7 +569,7 @@ export default {
         PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
         NL_LINK_PREFIX: this.settingsStore.nlLinkPrefix,
         ROOT_URL: this.settingsStore.rootUrl,
-        FLATMAPAPI_LOCATION: import.meta.env.VITE_FLATMAPAPI_LOCATION2,
+        FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI,
       };
     },
     entries: function() {
