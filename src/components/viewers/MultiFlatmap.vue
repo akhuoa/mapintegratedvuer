@@ -468,7 +468,6 @@ export default {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         if (flatmap.mapImp) {
           const response = flatmap.mapImp.search(ids[0]);
-
           // highlight only if the feature is found on map
           if (response?.results.length) {
             // The search can perform with either id or label
