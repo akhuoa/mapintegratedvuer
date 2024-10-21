@@ -457,14 +457,14 @@ export default {
 
       // first half | ids
       // searching with id will find the exact match
-      // const ids = data.slice(0, halfIndex);
+      const ids = data.slice(0, halfIndex);
 
       // second half | labels
       // searching with labels will find the closest/similar term
       const labels = data.slice(halfIndex);
 
       // The search can perform with either id or label
-      this.search(labels[0]);
+      this.search(ids[0]);
     });
 
     EventBus.on("markerUpdate", () => {
