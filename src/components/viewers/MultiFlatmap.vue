@@ -414,49 +414,73 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       flatmap.changeViewingMode(modeName);
     },
-  },
-  computed: {
-    facetSpecies() {
-      return this.settingsStore.facets.species;
-    },
-    featuredMarkers() {
-      return this.settingsStore.featuredMarkers;
-    },
-  },
-  watch: {
-    syncMode: function (val) {
-      if (this.$refs.multiflatmap.getCurrentFlatmap())
-        this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(val);
-    },
-    featuredMarkers: function (markers) {
-      if (!this.flatmapReady) {
-        return;
+    removeConnectivityTooltips: function () {
+      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+      if (flatmap?.$el) {
+        // close all tooltips on the current flatmap element
+        const tooltips = flatmap.$el.querySelectorAll('.flatmap-tooltip-popup');
+        tooltips.forEach(tooltip => tooltip.remove());
       }
-
-      this.updateFeaturedMarkers(markers, undefined);
     },
-  },
-  mounted: function () {
-    this.getFeaturedDatasets();
-    EventBus.on('show-connectivity', (payload) => {
-      const { featureIds, offset } = payload;
-      if (this.flatmapReady && this.$refs.multiflatmap) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        if (currentFlatmap) {
-          currentFlatmap.moveMap(featureIds, {
-            offsetX: offset ? -150 : 0,
-            zoom: 4,
-          });
+    createTooltipForConnectivity: function (filteredConnectivityData, mapImp) {
+      // combine all labels to show together
+      // content type must be DOM object to use HTML
+      const labelsContainer = document.createElement('div');
+      labelsContainer.classList.add('flatmap-feature-label');
+
+      filteredConnectivityData.forEach((connectivity, i) => {
+        const { label } = connectivity;
+        labelsContainer.append(capitalise(label));
+
+        if ((i + 1) < filteredConnectivityData.length) {
+          const hr = document.createElement('hr');
+          labelsContainer.appendChild(hr);
         }
-      }
-    });
+      });
 
-    EventBus.on('connectivity-component-click', (payload) => {
+      mapImp.showPopup(
+        filteredConnectivityData[0].featureId,
+        labelsContainer,
+        {
+          className: 'custom-popup flatmap-tooltip-popup',
+          positionAtLastClick: false,
+          preserveSelection: true,
+        }
+      );
+    },
+    emitConnectivityGraphError: function (errorData) {
+      if (errorData.length) {
+        const errorDataToEmit = [...new Set(errorData)];
+        let errorMessage = '';
+
+        errorDataToEmit.forEach((connectivity, i) => {
+          const { label } = connectivity;
+          errorMessage += (i === 0) ? capitalise(label) : label;
+
+          if (errorDataToEmit.length > 1) {
+            if ((i + 2) === errorDataToEmit.length) {
+              errorMessage += ' and ';
+            } else if ((i + 1) < errorDataToEmit.length) {
+              errorMessage += ', ';
+            }
+          }
+        });
+        errorMessage += ' cannot be found on the map!';
+        EventBus.emit('connectivity-graph-error', {
+          data: errorMessage
+        });
+      }
+    },
+    showConnectivityTooltips: function (payload) {
       const { connectivityInfo, data } = payload;
       const featuresToHighlight = [];
       const connectivityData = [];
       const filteredConnectivityData = [];
       const errorData = [];
+
+      if (!data.length) {
+        this.removeConnectivityTooltips();
+      }
 
       // to keep the highlighted path on map
       if (connectivityInfo && connectivityInfo.featureId) {
@@ -495,63 +519,62 @@ export default {
             }
           });
 
-          // show tooltip of the first item
-          // with all labels
           if (filteredConnectivityData.length) {
-            // combine all labels to show together
-            // content type must be DOM object to use HTML
-            const labelsContainer = document.createElement('div');
-            labelsContainer.classList.add('flatmap-feature-label');
-
-            filteredConnectivityData.forEach((connectivity, i) => {
-              const { label } = connectivity;
-              labelsContainer.append(capitalise(label));
-
-              if ((i + 1) < filteredConnectivityData.length) {
-                const hr = document.createElement('hr');
-                labelsContainer.appendChild(hr);
-              }
-            });
-
-            flatmap.mapImp.showPopup(
-              filteredConnectivityData[0].featureId,
-              labelsContainer,
-              {
-                className: 'custom-popup flatmap-tooltip-popup',
-                positionAtLastClick: false,
-                preserveSelection: true,
-              }
-            );
+            // show tooltip of the first item
+            // with all labels
+            this.createTooltipForConnectivity(filteredConnectivityData, flatmap.mapImp);
           } else {
             errorData.push(...connectivityData);
+            this.removeConnectivityTooltips();
           }
 
-          if (errorData.length) {
-            const errorDataToEmit = [...new Set(errorData)];
-            let errorMessage = '';
-
-            errorDataToEmit.forEach((connectivity, i) => {
-              const { label } = connectivity;
-              errorMessage += (i === 0) ? capitalise(label) : label;
-
-              if (errorDataToEmit.length > 1) {
-                if ((i + 2) === errorDataToEmit.length) {
-                  errorMessage += ' and ';
-                } else if ((i + 1) < errorDataToEmit.length) {
-                  errorMessage += ', ';
-                }
-              }
-            });
-            errorMessage += ' cannot be found on the map!';
-            EventBus.emit('connectivity-graph-error', {
-              data: errorMessage
-            });
-          }
+          // Emit error message for connectivity graph
+          this.emitConnectivityGraphError(errorData);
 
           // highlight all available features
           flatmap.mapImp.zoomToFeatures(featuresToHighlight, { noZoomIn: true });
         }
       }
+    },
+  },
+  computed: {
+    facetSpecies() {
+      return this.settingsStore.facets.species;
+    },
+    featuredMarkers() {
+      return this.settingsStore.featuredMarkers;
+    },
+  },
+  watch: {
+    syncMode: function (val) {
+      if (this.$refs.multiflatmap.getCurrentFlatmap())
+        this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(val);
+    },
+    featuredMarkers: function (markers) {
+      if (!this.flatmapReady) {
+        return;
+      }
+
+      this.updateFeaturedMarkers(markers, undefined);
+    },
+  },
+  mounted: function () {
+    this.getFeaturedDatasets();
+    EventBus.on('show-connectivity', (payload) => {
+      const { featureIds, offset } = payload;
+      if (this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (currentFlatmap) {
+          currentFlatmap.moveMap(featureIds, {
+            offsetX: offset ? -150 : 0,
+            zoom: 4,
+          });
+        }
+      }
+    });
+
+    EventBus.on('connectivity-component-click', (payload) => {
+      this.showConnectivityTooltips(payload);
     });
 
     EventBus.on("markerUpdate", () => {
