@@ -311,6 +311,11 @@ export default {
         }
       }
     },
+    onFullscreenEsc: function () {
+      if (!document.fullscreenElement) {
+        this.isFullscreen = false;
+      }
+    },
     close: function() {
       this.$emit("close");
     },
@@ -338,6 +343,11 @@ export default {
   mounted: function () {
     this.activeViewRef = shallowRef(this.$refs.activeViewRef);
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
+
+    document.addEventListener('fullscreenchange', this.onFullscreenEsc);
+  },
+  unmounted: function () {
+    document.removeEventListener('fullscreenchange', this.onFullscreenEsc);
   },
 };
 </script>
