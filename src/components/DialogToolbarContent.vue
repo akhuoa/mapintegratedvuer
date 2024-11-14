@@ -39,6 +39,22 @@
 
     <el-row class="icon-group">
       <el-popover
+        class="tooltip"
+        :content="isFitViewport ? 'Exit fit viewport' : 'Fit to viewport'"
+        placement="bottom-end"
+        :teleported=false
+        trigger="hover"
+        popper-class="header-popper"
+      >
+        <template #reference>
+          <map-svg-icon
+            :icon="isFitViewport ? 'undock' : 'dock'"
+            class="header-icon"
+            @click="toggleMapFitView"
+          />
+        </template>
+      </el-popover>
+      <el-popover
         v-if="activeViewRef"
         :virtual-ref="activeViewRef"
         ref="viewPopover"
@@ -259,6 +275,7 @@ export default {
   data: function() {
     return {
       isFullscreen: false,
+      isFitViewport: false,
       loadingLink: true,
       shareLinkDisplay: false,
       independent: true,
@@ -278,6 +295,21 @@ export default {
     onFullscreen: function() {
       this.$emit("onFullscreen");
       this.isFullscreen = !this.isFullscreen;
+    },
+    toggleMapFitView: function () {
+      const toolbarEl = this.$el;
+      const mapContainerEl = toolbarEl.closest('.mapcontent');
+      if (mapContainerEl) {
+        if (this.isFitViewport) {
+          this.isFitViewport = false;
+          mapContainerEl.classList.remove('fit-screen');
+          document.body.classList.remove('el-popup-parent--hidden');
+        } else {
+          this.isFitViewport = true;
+          mapContainerEl.classList.add('fit-screen');
+          document.body.classList.add('el-popup-parent--hidden');
+        }
+      }
     },
     onFullscreenEsc: function () {
       if (!document.fullscreenElement) {
