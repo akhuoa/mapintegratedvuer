@@ -296,11 +296,11 @@ export default {
       this.$emit("onFullscreen");
       this.isFullscreen = !this.isFullscreen;
     },
-    toggleMapFitView: function () {
+    toggleMapFitView: function (exitFitView = false) {
       const toolbarEl = this.$el;
       const mapContainerEl = toolbarEl.closest('.mapcontent');
       if (mapContainerEl) {
-        if (this.isFitViewport) {
+        if (this.isFitViewport || exitFitView === true) {
           this.isFitViewport = false;
           mapContainerEl.classList.remove('fit-screen');
           document.body.classList.remove('el-popup-parent--hidden');
@@ -309,6 +309,15 @@ export default {
           mapContainerEl.classList.add('fit-screen');
           document.body.classList.add('el-popup-parent--hidden');
         }
+      }
+    },
+    onKeydown: function (event) {
+      if (event.defaultPrevented) {
+        return; // Do nothing if the event was already processed
+      }
+
+      if (event.key === 'Escape') {
+        this.toggleMapFitView(true);
       }
     },
     onFullscreenEsc: function () {
@@ -345,9 +354,11 @@ export default {
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
 
     document.addEventListener('fullscreenchange', this.onFullscreenEsc);
+    window.addEventListener('keydown', this.onKeydown);
   },
   unmounted: function () {
     document.removeEventListener('fullscreenchange', this.onFullscreenEsc);
+    window.removeEventListener('keydown', this.onKeydown);
   },
 };
 </script>
