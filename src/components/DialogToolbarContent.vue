@@ -44,6 +44,7 @@
         placement="bottom-end"
         :teleported=false
         trigger="hover"
+        ref="fitViewPopover"
         popper-class="header-popper"
       >
         <template #reference>
@@ -309,6 +310,10 @@ export default {
           mapContainerEl.classList.add('fit-screen');
           document.body.classList.add('el-popup-parent--hidden');
         }
+      }
+      // hide tooltip
+      if (this.$refs.fitViewPopover) {
+        this.$refs.fitViewPopover.hide();
       }
     },
     onKeydown: function (event) {
