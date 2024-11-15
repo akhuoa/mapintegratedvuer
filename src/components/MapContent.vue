@@ -91,6 +91,14 @@ export default {
       type: Boolean,
       default: true,
     },
+    /**
+     * The option to show annotation in sidebar.
+     * Default is `true`. Set `false` to show as popup on map.
+     */
+     annotationSidebar: {
+      type: Boolean,
+      default: true,
+    },
   },
   data: function () {
     return {
@@ -305,6 +313,7 @@ export default {
       this.options.algoliaId ? this.settingsStore.updateAlgoliaId(this.options.algoliaId) : null
       this.options.pennsieveApi ? this.settingsStore.updatePennsieveApi(this.options.pennsieveApi) : null
       this.options.flatmapAPI ? this.settingsStore.updateFlatmapAPI(this.options.flatmapAPI) : null,
+      this.options.flatmapAPI2 ? this.settingsStore.updateFlatmapAPI2(this.options.flatmapAPI2) : null,
       this.options.nlLinkPrefix ? this.settingsStore.updateNLLinkPrefix(this.options.nlLinkPrefix) : null
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null
     }
@@ -336,6 +345,7 @@ export default {
     this.isReady = true;
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
     this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
+    this.settingsStore.updateAnnotationSidebar(this.annotationSidebar);
   }
 }
 
