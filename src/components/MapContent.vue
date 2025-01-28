@@ -11,6 +11,7 @@
         v-if="isReady"
         @onFullscreen="onFullscreen"
         :state="stateToSet"
+        :useDOIFormatter="useDOIFormatter"
         ref="flow"
         @vue:mounted="flowMounted"
       />
@@ -96,6 +97,15 @@ export default {
      * Default is `true`. Set `false` to show as popup on map.
      */
      annotationSidebar: {
+      type: Boolean,
+      default: true,
+    },
+    /**
+     * The option to use DOI.org as citation formatter in sidebar.
+     * If set to `false`, citation.js will be used.
+     * Default is `true`.
+     */
+    useDOIFormatter: {
       type: Boolean,
       default: true,
     },
@@ -384,6 +394,15 @@ export default {
   height: 100%;
   width:100%;
   z-index:1;
+
+  &.fit-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+  }
 }
 
 </style>

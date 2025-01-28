@@ -94,6 +94,7 @@ const availableSpecies = () => {
     "Mouse": { taxo: "NCBITaxon:10090", iconClass: "mapicon-icon_mouse", displayLatestChanges: true, displayWarning: false },
     "Pig": { taxo: "NCBITaxon:9823", iconClass: "mapicon-icon_pig", displayLatestChanges: true, displayWarning: false },
     "Cat": { taxo: "NCBITaxon:9685", iconClass: "mapicon-icon_cat", displayLatestChanges: true, displayWarning: true },
+    "Vagus": { taxo: 'UBERON:0001759', displayLatestChanges: true, displayWarning: true },
   }
 }
 
