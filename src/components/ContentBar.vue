@@ -190,6 +190,7 @@ export default {
     },
     getEntryTitle: function(entry) {
       if (entry) {
+        const id = entry.id;
         let title = entry.label ? entry.label + " ": '';
         let type = entry.type;
         if (type == "Scaffold")
