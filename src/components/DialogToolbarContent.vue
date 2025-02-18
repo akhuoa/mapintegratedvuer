@@ -173,7 +173,34 @@
           <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons"/>
         </template>
       </el-popover>
-
+      <el-popover class="tooltip" content="Settings" placement="bottom-end"
+        :show-after="helpDelay" :teleported=false trigger="hover"
+        popper-class="header-popper"
+        >
+        <template #reference>
+          <el-dropdown trigger="click">
+            <el-icon
+              class="header-icon"
+            >
+              <el-icon-more-filled />
+            </el-icon>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item>
+                  <el-checkbox v-model="highlightConnectedPaths">
+                    Highlight Connected Paths
+                  </el-checkbox>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <el-checkbox v-model="highlightDOIPaths">
+                    Highlight DOI Paths
+                  </el-checkbox>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </template>
+      </el-popover>
     </el-row>
   </div>
 </template>
@@ -271,7 +298,13 @@ export default {
       let flag = !(value === true);
       if (flag !== this.independent)
         this.independent = flag;
-    }
+    },
+    highlightConnectedPaths: function(value) {
+      this.settingsStore.globalSettings['highlightConnectedPaths'] = value;
+    },
+    highlightDOIPaths: function(value) {
+      this.settingsStore.globalSettings['highlightDOIPaths'] = value;
+    },
   },
   data: function() {
     return {
@@ -284,6 +317,8 @@ export default {
       activeViewRef: undefined,
       permalinkRef: undefined,
       ElIconCopyDocument: shallowRef(ElIconCopyDocument),
+      highlightConnectedPaths: false,
+      highlightDOIPaths: false,
     }
   },
   methods: {
@@ -374,6 +409,9 @@ export default {
   mounted: function () {
     this.activeViewRef = shallowRef(this.$refs.activeViewRef);
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
+
+    this.highlightConnectedPaths = this.settingsStore.globalSettings['highlightConnectedPaths'];
+    this.highlightDOIPaths = this.settingsStore.globalSettings['highlightDOIPaths'];
 
     document.addEventListener('fullscreenchange', this.onFullscreenEsc);
     window.addEventListener('keydown', this.onKeydown);
@@ -537,4 +575,22 @@ export default {
   scale: 0.7;
 }
 
+:deep(.el-dropdown-menu__item) {
+  &,
+  &:not(.is-disabled) {
+    &:hover,
+    &:focus {
+      color: $app-primary-color;
+      background-color: var(--el-bg-color-page);
+    }
+
+    .el-checkbox__input.is-checked + .el-checkbox__label {
+      color: inherit;
+    }
+    .el-checkbox__input.is-checked .el-checkbox__inner {
+      border-color: $app-primary-color;
+      background-color: $app-primary-color;
+    }
+  }
+}
 </style>
