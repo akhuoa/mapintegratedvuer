@@ -49,5 +49,9 @@ export default defineConfig(({ command, mode }) => {
       // 'process.env': env
     };
   }
+
+  if (command === 'preview') {
+    config.preview.allowedHosts = 'mapintegratedvuer-mapcore-754fcb3bf891.herokuapp.com'
+  }
   return config;
 });
