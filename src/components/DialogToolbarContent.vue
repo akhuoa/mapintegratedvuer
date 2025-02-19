@@ -178,7 +178,7 @@
         popper-class="header-popper"
         >
         <template #reference>
-          <el-dropdown trigger="click">
+          <el-dropdown trigger="click" size="small" popper-class="map-settings-dropdown">
             <el-icon
               class="header-icon"
             >
@@ -187,13 +187,21 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item>
+                  <el-checkbox v-model="displayMarker">
+                    Display markers on map
+                  </el-checkbox>
+                </el-dropdown-item>
+                <el-dropdown-item disabled divided>
+                  <span class="dropdown-item-title">Dataset Card Hover</span>
+                </el-dropdown-item>
+                <el-dropdown-item>
                   <el-checkbox v-model="highlightConnectedPaths">
-                    Highlight Connected Paths
+                    Highlight connected paths
                   </el-checkbox>
                 </el-dropdown-item>
                 <el-dropdown-item>
                   <el-checkbox v-model="highlightDOIPaths">
-                    Highlight DOI Paths
+                    Highlight related DOI paths
                   </el-checkbox>
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -299,6 +307,10 @@ export default {
       if (flag !== this.independent)
         this.independent = flag;
     },
+    displayMarker: function(value) {
+      this.settingsStore.globalSettings['displayMarker'] = value;
+      EventBus.emit('markerUpdate');
+    },
     highlightConnectedPaths: function(value) {
       this.settingsStore.globalSettings['highlightConnectedPaths'] = value;
     },
@@ -317,6 +329,7 @@ export default {
       activeViewRef: undefined,
       permalinkRef: undefined,
       ElIconCopyDocument: shallowRef(ElIconCopyDocument),
+      displayMarker: true,
       highlightConnectedPaths: false,
       highlightDOIPaths: false,
     }
@@ -410,6 +423,7 @@ export default {
     this.activeViewRef = shallowRef(this.$refs.activeViewRef);
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
 
+    this.displayMarker = this.settingsStore.globalSettings['displayMarker'];
     this.highlightConnectedPaths = this.settingsStore.globalSettings['highlightConnectedPaths'];
     this.highlightDOIPaths = this.settingsStore.globalSettings['highlightDOIPaths'];
 
@@ -574,22 +588,48 @@ export default {
   top: 0px;
   scale: 0.7;
 }
+</style>
 
-:deep(.el-dropdown-menu__item) {
-  &,
-  &:not(.is-disabled) {
-    &:hover,
-    &:focus {
-      color: $app-primary-color;
-      background-color: var(--el-bg-color-page);
+<style lang="scss">
+.map-settings-dropdown {
+  .el-dropdown-menu__item {
+
+    &:not(.is-disabled) {
+      &:hover,
+      &:focus {
+        color: $app-primary-color;
+        background-color: var(--el-bg-color-page);
+
+        .el-checkbox,
+        .el-checkbox__label {
+          color: $app-primary-color;
+        }
+      }
+
+      .el-checkbox__input.is-checked + .el-checkbox__label {
+        color: inherit;
+      }
+
+      .el-checkbox__input.is-checked .el-checkbox__inner {
+        border-color: $app-primary-color;
+        background-color: $app-primary-color;
+      }
     }
 
-    .el-checkbox__input.is-checked + .el-checkbox__label {
-      color: inherit;
+    .el-checkbox,
+    .el-checkbox__label,
+    .dropdown-item-title {
+      color: var(--el-text-color-primary);
+      font-size: inherit;
+      font-weight: 500;
     }
-    .el-checkbox__input.is-checked .el-checkbox__inner {
-      border-color: $app-primary-color;
-      background-color: $app-primary-color;
+
+    &.is-disabled {
+      cursor: default !important;
+    }
+
+    .dropdown-item-title {
+      color: var(--el-text-color-secondary);
     }
   }
 }
