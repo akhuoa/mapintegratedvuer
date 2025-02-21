@@ -11,6 +11,7 @@
         v-if="isReady"
         @onFullscreen="onFullscreen"
         :state="stateToSet"
+        :useDOIFormatter="useDOIFormatter"
         ref="flow"
         @vue:mounted="flowMounted"
       />
@@ -100,15 +101,13 @@ export default {
       default: true,
     },
     /**
-     * The options to highlight features and paths on maps and scaffolds
-     * when hover over the dataset cards on sidebar.
+     * The option to use DOI.org as citation formatter in sidebar.
+     * If set to `false`, citation.js will be used.
+     * Default is `true`.
      */
-    hoverHighlightOptions: {
-      type: Object,
-      default: () => ({
-        highlightConnectedPaths: false,
-        highlightDOIPaths: false,
-      }),
+    useDOIFormatter: {
+      type: Boolean,
+      default: true,
     },
   },
   data: function () {
@@ -255,7 +254,7 @@ export default {
             //  biologicalSex - biological sex to be displayed (PATO)
             //  organ - Target organ, flatmap will conduct a local search
             //          using this
-  
+
             //Look for the key in the available species array,
             //it will use the taxo and biologicalSex as hints.
             const key = findSpeciesKey(state);
@@ -383,7 +382,6 @@ export default {
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
     this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
     this.settingsStore.updateAnnotationSidebar(this.annotationSidebar);
-    this.settingsStore.updateHoverHighlightOptions(this.hoverHighlightOptions);
   }
 }
 
@@ -411,6 +409,15 @@ export default {
   height: 100%;
   width:100%;
   z-index:1;
+
+  &.fit-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+  }
 }
 
 </style>
