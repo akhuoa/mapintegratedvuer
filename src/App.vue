@@ -23,8 +23,14 @@
                 <el-button @click="setWholebody()" size="small">Set to Wholebody</el-button>
                 <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
                 <el-button @click="setSearch()" size="small">Set Search</el-button>
-                <el-button @click="toggleHighlightConnectedPaths()" size="small">Toggle Highlight Connected Paths</el-button>
-                <el-button @click="toggleHighlightDOIPaths()" size="small">Toggle Highlight DOI Paths</el-button>
+              </div>
+              <div class="row">
+                <el-switch
+                  v-model="useDOIFormatter"
+                  size="small"
+                  active-text="Use DOI formatter"
+                  inactive-text="Use citation.js formatter"
+                />
               </div>
             </div>
             <template #reference>
@@ -43,7 +49,7 @@
         :shareLink="shareLink"
         :useHelpModeDialog="true"
         :connectivityInfoSidebar="true"
-        :hoverHighlightOptions="hoverHighlightOptions"
+        :useDOIFormatter="useDOIFormatter"
         @updateShareLinkRequested="updateUUID"
         @isReady="viewerIsReady"
         @mapLoaded="mapIsLoaded"
@@ -82,10 +88,7 @@ export default {
       mapSettings: [],
       startingMap: "AC",
       ElIconSetting: shallowRef(ElIconSetting),
-      hoverHighlightOptions: {
-        highlightConnectedPaths: true,
-        highlightDOIPaths: false,
-      },
+      useDOIFormatter: true,
     }
   },
   computed: {
@@ -184,12 +187,6 @@ export default {
     },
     setSearch: function() {
       this.$refs.map.openSearch([], "10.26275/1uno-tynt");
-    },
-    toggleHighlightConnectedPaths: function () {
-      this.hoverHighlightOptions.highlightConnectedPaths = !this.hoverHighlightOptions.highlightConnectedPaths;
-    },
-    toggleHighlightDOIPaths: function () {
-      this.hoverHighlightOptions.highlightDOIPaths = !this.hoverHighlightOptions.highlightDOIPaths;
     },
     mapIsLoaded: function(map) {
       console.log("map is loaded", map)

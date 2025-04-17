@@ -39,6 +39,23 @@
 
     <el-row class="icon-group">
       <el-popover
+        class="tooltip"
+        :content="isFitViewport ? 'Exit fit viewport' : 'Fit to viewport'"
+        placement="bottom-end"
+        :teleported=false
+        trigger="hover"
+        ref="fitViewPopover"
+        popper-class="header-popper"
+      >
+        <template #reference>
+          <map-svg-icon
+            :icon="isFitViewport ? 'undock' : 'dock'"
+            class="header-icon"
+            @click="toggleMapFitView"
+          />
+        </template>
+      </el-popover>
+      <el-popover
         v-if="activeViewRef"
         :virtual-ref="activeViewRef"
         ref="viewPopover"
@@ -156,7 +173,64 @@
           <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons"/>
         </template>
       </el-popover>
+      <el-popover
+        class="tooltip"
+        content="Settings"
+        placement="bottom-end"
+        :show-after="helpDelay"
+        :teleported=false
+        trigger="hover"
+        popper-class="header-popper"
+        v-if="globalSettings"
+      >
+        <template #reference>
+          <el-dropdown trigger="click" size="small" popper-class="map-settings-dropdown">
+            <el-icon
+              class="header-icon"
+            >
+              <el-icon-more-filled />
+            </el-icon>
+            <template #dropdown>
+              <el-dropdown-menu>
 
+                <el-dropdown-item v-if="globalSettings.displayMarker !== undefined">
+                  <el-checkbox
+                    v-model="globalSettings.displayMarker"
+                    @change="updateGlobalSettings(globalSettings)"
+                  >
+                    Display markers on map
+                  </el-checkbox>
+                </el-dropdown-item>
+
+                <el-dropdown-item
+                  disabled
+                  :divided="globalSettings.displayMarker !== undefined"
+                  v-if="globalSettings.highlightConnectedPaths !== undefined || globalSettings.highlightDOIPaths !== undefined"
+                >
+                  <span class="dropdown-item-title">Dataset Card Hover</span>
+                </el-dropdown-item>
+                <el-dropdown-item v-if="globalSettings.highlightConnectedPaths !== undefined">
+                  <el-checkbox
+                    v-model="globalSettings.highlightConnectedPaths"
+                    @change="updateGlobalSettings(globalSettings)"
+                  >
+                    Highlight connected paths
+                  </el-checkbox>
+                </el-dropdown-item>
+                <el-dropdown-item v-if="globalSettings.highlightDOIPaths !== undefined">
+                  <el-checkbox
+                    v-model="globalSettings.highlightDOIPaths"
+                    @change="updateGlobalSettings(globalSettings)"
+                  >
+                    Highlight related DOI paths
+                  </el-checkbox>
+                </el-dropdown-item>
+
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </template>
+      </el-popover>
     </el-row>
   </div>
 </template>
@@ -254,11 +328,12 @@ export default {
       let flag = !(value === true);
       if (flag !== this.independent)
         this.independent = flag;
-    }
+    },
   },
   data: function() {
     return {
       isFullscreen: false,
+      isFitViewport: false,
       loadingLink: true,
       shareLinkDisplay: false,
       independent: true,
@@ -266,11 +341,18 @@ export default {
       activeViewRef: undefined,
       permalinkRef: undefined,
       ElIconCopyDocument: shallowRef(ElIconCopyDocument),
+      globalSettings: null,
     }
   },
   methods: {
-    updateGlobalSettings: function(globalSettings) {
-      this.settingsStore.updateGlobalSettings(globalSettings)
+    updateGlobalSettings: function(updatedGlobalSettings) {
+      const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(updatedGlobalSettings);
+      this.settingsStore.updateGlobalSettings(updatedGlobalSettings);
+
+      // display marker update
+      if (updatedSettings.includes('displayMarker')) {
+        EventBus.emit('markerUpdate');
+      }
     },
     setDisplayMarkerFlag: function(displayMarker) {
       if (displayMarker !== undefined) {
@@ -291,6 +373,34 @@ export default {
     onFullscreen: function() {
       this.$emit("onFullscreen");
       this.isFullscreen = !this.isFullscreen;
+    },
+    toggleMapFitView: function (exitFitView = false) {
+      const toolbarEl = this.$el;
+      const mapContainerEl = toolbarEl.closest('.mapcontent');
+      if (mapContainerEl) {
+        if (this.isFitViewport || exitFitView === true) {
+          this.isFitViewport = false;
+          mapContainerEl.classList.remove('fit-screen');
+          document.body.classList.remove('el-popup-parent--hidden');
+        } else {
+          this.isFitViewport = true;
+          mapContainerEl.classList.add('fit-screen');
+          document.body.classList.add('el-popup-parent--hidden');
+        }
+      }
+      // hide tooltip
+      if (this.$refs.fitViewPopover) {
+        this.$refs.fitViewPopover.hide();
+      }
+    },
+    onKeydown: function (event) {
+      if (event.defaultPrevented) {
+        return; // Do nothing if the event was already processed
+      }
+
+      if (event.key === 'Escape') {
+        this.toggleMapFitView(true);
+      }
     },
     onFullscreenEsc: function () {
       if (!document.fullscreenElement) {
@@ -328,11 +438,14 @@ export default {
   mounted: function () {
     this.activeViewRef = shallowRef(this.$refs.activeViewRef);
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
+    this.globalSettings = {...this.settingsStore.globalSettings};
 
     document.addEventListener('fullscreenchange', this.onFullscreenEsc);
+    window.addEventListener('keydown', this.onKeydown);
   },
   unmounted: function () {
     document.removeEventListener('fullscreenchange', this.onFullscreenEsc);
+    window.removeEventListener('keydown', this.onKeydown);
   },
 };
 </script>
@@ -492,5 +605,49 @@ export default {
   top: 0px;
   scale: 0.7;
 }
+</style>
 
+<style lang="scss">
+.map-settings-dropdown {
+  .el-dropdown-menu__item {
+
+    &:not(.is-disabled) {
+      &:hover,
+      &:focus {
+        color: $app-primary-color;
+        background-color: var(--el-bg-color-page);
+
+        .el-checkbox,
+        .el-checkbox__label {
+          color: $app-primary-color;
+        }
+      }
+
+      .el-checkbox__input.is-checked + .el-checkbox__label {
+        color: inherit;
+      }
+
+      .el-checkbox__input.is-checked .el-checkbox__inner {
+        border-color: $app-primary-color;
+        background-color: $app-primary-color;
+      }
+    }
+
+    .el-checkbox,
+    .el-checkbox__label,
+    .dropdown-item-title {
+      color: var(--el-text-color-primary);
+      font-size: inherit;
+      font-weight: 500;
+    }
+
+    &.is-disabled {
+      cursor: default !important;
+    }
+
+    .dropdown-item-title {
+      color: var(--el-text-color-secondary);
+    }
+  }
+}
 </style>
