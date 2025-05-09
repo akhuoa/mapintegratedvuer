@@ -624,7 +624,11 @@ export default {
     });
     EventBus.on('connectivity-info-close', payload => {
       this.tabClicked({id: 1, type: 'search'});
+      // clear connectivity data
       this.connectivityInfo = null;
+      // clear annotation data
+      this.annotationEntry = {};
+      this.createData = {};
       this.resetActivePathways();
     });
     EventBus.on('connectivity-graph-error', payload => {
