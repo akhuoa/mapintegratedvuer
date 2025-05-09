@@ -39,6 +39,23 @@
 
     <el-row class="icon-group">
       <el-popover
+        class="tooltip"
+        :content="isFitViewport ? 'Exit fit viewport' : 'Fit to viewport'"
+        placement="bottom-end"
+        :teleported=false
+        trigger="hover"
+        ref="fitViewPopover"
+        popper-class="header-popper"
+      >
+        <template #reference>
+          <map-svg-icon
+            :icon="isFitViewport ? 'undock' : 'dock'"
+            class="header-icon"
+            @click="toggleMapFitView"
+          />
+        </template>
+      </el-popover>
+      <el-popover
         v-if="activeViewRef"
         :virtual-ref="activeViewRef"
         ref="viewPopover"
@@ -311,6 +328,7 @@ export default {
   data: function() {
     return {
       isFullscreen: false,
+      isFitViewport: false,
       loadingLink: true,
       displayShareOptions: false,
       independent: true,
@@ -343,6 +361,34 @@ export default {
     onFullscreen: function() {
       this.$emit("onFullscreen");
       this.isFullscreen = !this.isFullscreen;
+    },
+    toggleMapFitView: function (exitFitView = false) {
+      const toolbarEl = this.$el;
+      const mapContainerEl = toolbarEl.closest('.mapcontent');
+      if (mapContainerEl) {
+        if (this.isFitViewport || exitFitView === true) {
+          this.isFitViewport = false;
+          mapContainerEl.classList.remove('fit-screen');
+          document.body.classList.remove('el-popup-parent--hidden');
+        } else {
+          this.isFitViewport = true;
+          mapContainerEl.classList.add('fit-screen');
+          document.body.classList.add('el-popup-parent--hidden');
+        }
+      }
+      // hide tooltip
+      if (this.$refs.fitViewPopover) {
+        this.$refs.fitViewPopover.hide();
+      }
+    },
+    onKeydown: function (event) {
+      if (event.defaultPrevented) {
+        return; // Do nothing if the event was already processed
+      }
+
+      if (event.key === 'Escape') {
+        this.toggleMapFitView(true);
+      }
     },
     onFullscreenEsc: function () {
       if (!document.fullscreenElement) {
@@ -389,9 +435,11 @@ export default {
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
 
     document.addEventListener('fullscreenchange', this.onFullscreenEsc);
+    window.addEventListener('keydown', this.onKeydown);
   },
   unmounted: function () {
     document.removeEventListener('fullscreenchange', this.onFullscreenEsc);
+    window.removeEventListener('keydown', this.onKeydown);
   },
 };
 </script>
