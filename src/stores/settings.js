@@ -34,6 +34,7 @@ export const useSettingsStore = defineStore('settings', {
       annotationSidebar: true,
       allClosable: true,
       offlineAnnotationEnabled: false,
+      displayMinimap: true,
       globalSettings: {
         displayMarkers: true, // comment out to hide in settings
         // highlightConnectedPaths: false, // comment out to hide in settings
@@ -219,12 +220,13 @@ export const useSettingsStore = defineStore('settings', {
     updateOfflineAnnotationEnabled(offlineAnnotationEnabled) {
       this.offlineAnnotationEnabled = offlineAnnotationEnabled;
     },
+    updateDisplayMinimap(displayMinimap) {
+      this.displayMinimap = displayMinimap;
+    },
     updateGlobalSettings(globalSettings) {
       for (const [key, value] of Object.entries(globalSettings)) {
         this.globalSettings[key] = value;
       }
-      // add global settins to storage
-      localStorage.setItem('mapviewer.globalSettings', JSON.stringify(this.globalSettings));
     },
   }
 });

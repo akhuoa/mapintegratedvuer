@@ -102,15 +102,19 @@ export default {
       const vuers = this.$refs['content'];
       if (vuers) {
         vuers.forEach(vuer => {
-          if (vuer.isVisible())
+          if (vuer.visible)
             activeContents.push(vuer);
         });
       }
       return activeContents;
     },
     isIdVisible: function(id) {
-      const refName = this.splitFlowStore.getPaneNameById(id);
-      return refName !== undefined;
+      const paneName = this.splitFlowStore.getPaneNameById(id);
+      let visible = false;
+      if (paneName !== undefined) {
+        visible = this.splitFlowStore.isPaneActive(paneName);
+      }
+      return visible;
     },
     getContentsWithId: function(id) {
       let contents = this.$refs["content"];
@@ -382,7 +386,7 @@ export default {
                   const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
                   if (matchedFilter) {
                     matchedFilter.children.forEach((child) => {
-                      if (child.label === item.facet && child.key) {
+                      if (child.label.toLowerCase() === item.facet.toLowerCase() && child.key) {
                         const childKey = child.key.split('.').pop();
                         if (!(facetKey in filters)) {
                           filters[facetKey] = [];
@@ -470,6 +474,32 @@ export default {
 
       EventBus.emit("connectivity-knowledge", connectivitiesPayload);
     },
+    updateFlatmapMinimap: function () {
+      const activePaneIDs = this.splitFlowStore.getActivePaneIds();
+      let contents = this.$refs['content'];
+      let multiFlatmapContents = [];
+
+      // Only multiFlatmap viewer has minimap
+      for (let i = 0; i < contents.length; i++) {
+        if (contents[i].viewerType === 'MultiFlatmap') {
+          multiFlatmapContents.push(contents[i]);
+        }
+      }
+
+      // Prioritize visible contents so minimap initializes with visible maps first
+      multiFlatmapContents.sort((a, b) => {
+        return b.visible - a.visible;
+      });
+
+      // Disable minimap when there are more than four panel in map-viewer
+      const minimapShow = activePaneIDs.length > 4 ? false : true;
+      const prevMinimapState = this.settingsStore.displayMinimap;
+
+      this.settingsStore.updateDisplayMinimap(minimapShow);
+      multiFlatmapContents.forEach((content) => {
+        content.toggleMinimap(minimapShow, prevMinimapState);
+      });
+    },
   },
   computed: {
     ...mapStores(useSplitFlowStore, useConnectivitiesStore, useSettingsStore),
@@ -486,6 +516,7 @@ export default {
   mounted: function () {
     EventBus.on("PaneResize", payload => {
       this.setStyles(payload.refName, payload.rect);
+      this.updateFlatmapMinimap();
     });
     EventBus.on("PaneUnmounted", payload => {
       this.hidePane(payload.refName);

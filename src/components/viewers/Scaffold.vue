@@ -36,7 +36,7 @@
       :showOpenMapButton="showOpenMapButton"
       :usageConfig="{
         showTubeLinesControls: false,
-        tubeLines: (entry.discoverId === '307')
+        tubeLines: (entry.discoverId === '307' || entry.discoverId === 307)
       }"
     />
 
@@ -255,7 +255,7 @@ export default {
     scaffoldIsReady: function () {
       this.scaffoldLoaded = true;
       this.$refs.scaffold.$module.graphicsHighlight.highlightColour = [1, 0, 1];
-      if (this.isVisible()) {
+      if (this.visible) {
         let rotation = "free";
         if (this.entry.rotation) rotation = this.entry.rotation;
       }
@@ -322,7 +322,7 @@ export default {
   },
   computed: {
     warningMessage: function() {
-      if (this.entry.isBodyScaffold) {
+      if ((this.entry.discoverId === '307' || this.entry.discoverId === 307)) {
         return "This map displays the anatomical location and connectivity of nerves, through which the neuron populations from the ApiNATOMY models available in SCKAN can be routed.";
       } else {
         return "Under active development";

@@ -27,11 +27,13 @@
       :connectivityInfoSidebar="connectivityInfoSidebar"
       :pathControls="true"
       ref="flatmap"
+      @context-restored="contextRestored"
       @ready="flatmapReadyCall"
-      :displayMinimap="false"
+      :displayMinimap="displayMinimap"
       :displayWarning="true"
       :enableOpenMapUI="true"
       :flatmapAPI="flatmapAPI"
+      :render="visible"
       :sparcAPI="apiLocation"
       :showLocalSettings="showLocalSettings"
       :showOpenMapButton="showOpenMapButton"
@@ -75,6 +77,7 @@ export default {
   data: function () {
     return {
       flatmapReady: false,
+      displayMinimap: false,
     }
   },
   methods: {
@@ -90,6 +93,10 @@ export default {
     },
     getFlatmapImp() {
       return this.$refs.flatmap?.mapImp;
+    },
+    contextRestored(flatmap) {
+      this.flatmapReadyForMarkerUpdates(flatmap);
+      this.updateViewerSettings();
     },
     flatmapReadyCall: function (flatmap) {
       this.flatmapReady = true;

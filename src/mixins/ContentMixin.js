@@ -79,6 +79,25 @@ export default {
     this.connectivityFilterSources = this.connectivitiesStore.filterSources;
   },
   methods: {
+    toggleMinimap: function (option, prevState) {
+      if (this.multiflatmapRef) {
+        const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
+        const mapImp = currentFlatmap?.mapImp;
+        if (mapImp) {
+          if (option === true) {
+            // Only create minimap when it is not created before or destroyed
+            if (prevState === false) {
+              const minimapOptions = mapImp.options?.minimap || { position: 'top-right' };
+              mapImp.createMinimap(minimapOptions);
+              currentFlatmap.addResizeButtonToMinimap();
+              currentFlatmap.minimapSmall = false;
+            }
+          } else {
+            mapImp.closeMinimap();
+          }
+        }
+      }
+    },
     onConnectivityItemClose() {
       if (this?.alive) {
         if (this.multiflatmapRef) {
@@ -183,7 +202,7 @@ export default {
               let labels = new Set();
               // 'marker-terms' changed to 'dataset-terms' in flatmap-viewer@4.3.5
               resource.feature['dataset-terms'].forEach((term) => {
-                labels.add(term.label);
+                labels.add(term.label ? term.label : term.term);
               });
               if (labels.size === 0) {
                 labels.add(label);
@@ -253,13 +272,6 @@ export default {
           resource.type == "Facets"
         )
       );
-    },
-    /**
-     * Check if this viewer is currently visible
-     */
-    isVisible: function() {
-      const paneName = this.splitFlowStore.getPaneNameById(this.entry.id);
-      return paneName !== undefined;
     },
     /**
      * Get the term to zoom/highlight in a synchronisation event,
@@ -539,10 +551,12 @@ export default {
         clearTimeout(this.highlightDelay);
         if (!hoverAnatomies.length && !hoverOrgans.length && !hoverDOI && !hoverConnectivity.length) {
           if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
-            flatmap.mapImp?.clearSearchResults();
-            if (payload.connectivityProcessed) {
-              // grey out all connectivity if no search results
-              flatmap.mapImp?.setPaint({ dimmed: true })
+            if (flatmap.mapImp && !flatmap.mapImp.contextLost) {
+              flatmap.mapImp?.clearSearchResults();
+              if (payload.connectivityProcessed) {
+                // grey out all connectivity if no search results
+                flatmap.mapImp?.setPaint({ dimmed: true })
+              }
             }
           } else if (this.scaffoldRef && scaffold) {
             scaffold.changeHighlightedByName(hoverOrgans, "", false);
@@ -569,7 +583,9 @@ export default {
                       )
                     );
                     if (!found) {
-                      flatmap.mapImp.clearSearchResults();
+                      if (flatmap.mapImp && !flatmap.mapImp.contextLost) {
+                        flatmap.mapImp.clearSearchResults();
+                      }
                     }
                   }
                 }
