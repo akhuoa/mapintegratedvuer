@@ -20,6 +20,9 @@
       <div v-else class="toolbar-title">
         {{ getEntryTitle(entry) }}
       </div>
+      <el-icon v-if="hasSourceInfo" class="info-icon el-icon--left">
+        <el-icon-info-filled @click="openSourceInfo"/>
+      </el-icon>
     </div>
     <el-row class="icon-group">
       <el-popover
@@ -69,12 +72,9 @@
             @click="closeAndRemove()"/>
           </template>
       </el-popover>
-
     </el-row>
-
   </div>
 </template>
-
 
 <script>
 /* eslint-disable no-alert, no-console */
@@ -134,6 +134,9 @@ export default {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
     allClosable() {
       return this.settingsStore.allClosable;
+    },
+    hasSourceInfo() {
+      return this.entry.doi || this.entry.connectivityInfo;
     },
     helpDelay() {
       return this.settingsStore.helpDelay;
@@ -239,6 +242,19 @@ export default {
       const character = ' (' + String.fromCharCode(65 + id) + ')';
       return character;
     },
+    openSourceInfo: function() {
+      if (this.entry.doi) {
+        const returnedAction = {
+          type: "Search",
+          term: this.entry.doi.replace("https://doi.org/", ""),
+        };
+        EventBus.emit("PopoverActionClick", returnedAction);
+      } else if (this.entry.connectivityInfo) {
+
+        EventBus.emit('connectivity-info-open', [this.entry.connectivityInfo]);
+      }
+
+    },
     viewerChanged: function(value) {
       if (this.entry.id && this.entry.id != value) {
         this.splitFlowStore.assignOrSwapPaneWithIds({
@@ -302,20 +318,21 @@ export default {
 @use "../assets/header-icon.scss";
 
 
-.toolbar-title {
-  width: 160px;
-  height: 20px;
-  color: $app-primary-color;
-  font-size: 14px;
-  font-weight: normal;
-  line-height: 20px;
-  margin-left: 1rem;
-  margin-top: 4px;
-}
-
 .toolbar-flex-container {
   display:flex;
   flex-direction: row;
+
+  .toolbar-title {
+    width: 160px;
+    height: 20px;
+    color: $app-primary-color;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 20px;
+    margin-left: 1rem;
+    margin-top: 6px;
+  }
+
   .select-box {
     max-width: 300px;
     z-index: 5;
@@ -372,6 +389,15 @@ export default {
   .title {
     width: 140px;
     color: $app-primary-color;
+  }
+
+  :deep(.info-icon) {
+    margin-top: 6px;
+    font-size: 20px;
+    color: $app-primary-color;
+    &:hover {
+      cursor: pointer;
+    }
   }
 }
 
@@ -457,4 +483,5 @@ export default {
   width: unset!important;
   background: #fff!important;
 }
+
 </style>
