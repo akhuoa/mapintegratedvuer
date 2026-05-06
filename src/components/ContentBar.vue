@@ -20,9 +20,15 @@
       <div v-else class="toolbar-title">
         {{ getEntryTitle(entry) }}
       </div>
-      <el-icon v-if="hasSourceInfo" class="info-icon el-icon--left">
-        <el-icon-info-filled @click="openSourceInfo"/>
-      </el-icon>
+      <el-button
+        v-if="hasSourceInfo"
+        round
+        size="small"
+        class="source-chip"
+        @click="openSourceInfo"
+      >
+        {{ getSourceTitle }}
+      </el-button>
     </div>
     <el-row class="icon-group">
       <el-popover
@@ -89,7 +95,6 @@ import FlatmapContextCard from './FlatmapContextCard.vue';
 import {
   ArrowDown as ElIconArrowDown,
   ArrowUp as ElIconArrowUp,
-  InfoFilled as ElIconInfoFilled,
 } from '@element-plus/icons-vue'
 import {
   ElInput as Input,
@@ -105,7 +110,6 @@ export default {
   components: {
     ElIconArrowDown,
     ElIconArrowUp,
-    ElIconInfoFilled,
     Input,
     Option,
     Popover,
@@ -134,6 +138,15 @@ export default {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
     allClosable() {
       return this.settingsStore.allClosable;
+    },
+    getSourceTitle: function() {
+      if (this.entry) {
+        if (this.entry.doi) {
+          return this.entry.doi.replace("https://doi.org/", "");
+        } else if (this.entry.connectivityInfo) {
+          return this.entry.label;
+        }
+      }
     },
     hasSourceInfo() {
       return this.entry.doi || this.entry.connectivityInfo;
@@ -250,10 +263,8 @@ export default {
         };
         EventBus.emit("PopoverActionClick", returnedAction);
       } else if (this.entry.connectivityInfo) {
-
         EventBus.emit('connectivity-info-open', [this.entry.connectivityInfo]);
       }
-
     },
     viewerChanged: function(value) {
       if (this.entry.id && this.entry.id != value) {
@@ -334,7 +345,7 @@ export default {
   }
 
   .select-box {
-    max-width: 300px;
+    max-width: 200px;
     z-index: 5;
     :deep(.el-select__wrapper) {
       color: $app-primary-color;
@@ -399,6 +410,21 @@ export default {
       cursor: pointer;
     }
   }
+
+  .source-chip {
+    padding: 4px;
+    margin-top: 4px;
+    margin-left: 5px;
+    background-color: $app-primary-color;
+    border-color: $app-primary-color;
+    color: #fff;
+    font-size: 11px;
+    &:hover {
+      color: #fff !important;
+      background-color: #ac76c5 !important;
+      border: 1px solid #ac76c5 !important;
+    }
+  }
 }
 
 .viewer_dropdown {
@@ -425,6 +451,7 @@ export default {
   top: auto;
   font-size: 12px;
   align-items: center;
+  flex-wrap: nowrap;
 
   :deep(.el-tooltip__trigger) {
     height: 100%;
@@ -438,18 +465,6 @@ export default {
     flex-direction: row;
     align-items: center;
     gap: 4px;
-  }
-}
-
-.info-icon {
-  margin-top: 2px;
-  margin-right: 8px;
-  font-size: 28px;
-  color: $app-primary-color;
-  cursor: pointer;
-  &::before { // since the icon is a font, we need to adjust the vertical alignment
-    position: relative;
-    top: -2px;
   }
 }
 
