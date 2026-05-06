@@ -6,7 +6,7 @@
         :teleported="false"
         :model-value="entry.id"
         placeholder="Select"
-        class="select-box shrink"
+        class="select-box"
         popper-class="viewer_dropdown"
         @change="viewerChanged($event)"
       >
@@ -144,7 +144,7 @@ export default {
         if (this.entry.doi) {
           return this.entry.doi.replace("https://doi.org/", "");
         } else if (this.entry.connectivityInfo) {
-          return this.entry.label;
+          return "SCKAN";
         }
       }
     },
@@ -340,7 +340,6 @@ export default {
     flex-shrink: 1;
     min-width: 0;
     overflow:hidden;
-    white-space: nowrap;
   }
 
   .information-group {
@@ -361,6 +360,8 @@ export default {
   .select-box {
     max-width: 200px;
     z-index: 5;
+    flex-shrink: 1;
+    min-width: 0;
     :deep(.el-select__wrapper) {
       color: $app-primary-color;
       height: 29px;
