@@ -31,6 +31,7 @@
           :filterOptions="filterOptions"
           :showVisibilityFilter="showVisibilityFilter"
           :showLongLabel="showLongLabel"
+          :showCellCards="showCellCards"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
@@ -152,6 +153,10 @@ export default {
     showLongLabel: {
       type: Boolean,
       default: true,
+    },
+    showCellCards: {
+      type: Boolean,
+      default: false,
     },
   },
   data: function () {

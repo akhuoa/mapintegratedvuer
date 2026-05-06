@@ -25,6 +25,7 @@
                 <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
                 <el-button @click="setSearch()" size="small">Set Search</el-button>
                 <el-button @click="toggleLongLabel()" size="small">Toggle Long Label</el-button>
+                <el-button @click="toggleCellCards()" size="small">Toggle Cell Cards</el-button>
               </div>
             </div>
             <template #reference>
@@ -42,6 +43,7 @@
         :options="options"
         :state="state"
         :showLongLabel="showLongLabel"
+        :showCellCards="showCellCards"
         :shareLink="shareLink"
         :useHelpModeDialog="true"
         :connectivityInfoSidebar="true"
@@ -161,6 +163,7 @@ export default {
       ElIconSetting: shallowRef(ElIconSetting),
       routerIsReady: false,
       showLongLabel: true,
+      showCellCards: false,
     }
   },
   computed: {
@@ -315,6 +318,9 @@ export default {
     },
     toggleLongLabel: function() {
       this.showLongLabel = !this.showLongLabel;
+    },
+    toggleCellCards: function() {
+      this.showCellCards = !this.showCellCards;
     },
     mapIsLoaded: function(map) {
       console.log("map is loaded", map)
