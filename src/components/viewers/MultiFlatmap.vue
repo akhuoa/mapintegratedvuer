@@ -200,7 +200,7 @@ export default {
     updateProvCard: function() {
       const imp = this.getFlatmapImp();
       if (imp) {
-        let provClone = {id: this.entry.id, prov: imp.mapMetadata};
+        let provClone = {id: this.entry.id, prov: imp.mapMetadata, species: this.activeSpecies};
         EventBus.emit("mapImpProv", provClone);
         this.$emit("flatmap-provenance-ready", provClone);
       }
