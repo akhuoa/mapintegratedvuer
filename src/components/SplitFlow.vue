@@ -60,6 +60,7 @@
           ref="splitdialog"
           @resource-selected="resourceSelected"
           @species-changed="speciesChanged"
+          @update-active-species="updateActiveSpeciesForEntries"
         />
       </div>
     </el-main>
@@ -887,6 +888,11 @@ export default {
           EventBus.emit('species-layout-connectivity-update');
           this.$refs.sideBar.close();
         })
+      }
+    },
+    updateActiveSpeciesForEntries: function (activeSpecies) {
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.updateActiveSpeciesForEntries(activeSpecies);
       }
     },
     contextUpdate: function (payload) {
