@@ -57,9 +57,10 @@ Cypress.Commands.add('checkFlatmapProvenanceCard', (species, prevPublicationLink
   cy.get('#flatmap-select').click({force: true} );
   cy.get('.el-select-dropdown__wrap > .el-scrollbar__view').contains(species).click();
   cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
-  cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 60000}).should('be.visible');      cy.get('.el-row > div[style=""]').click()
+  cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 60000}).should('be.visible');
+  cy.get('.information-group > div.el-tooltip__trigger > :nth-child(2)').click()
   cy.get('.flatmap-context-card > .card-right > a').contains('here').should('have.attr', 'href').and('include', species.toLowerCase())
-  cy.get('.flatmap-context-card').trigger('mouseover');
+  cy.get('.flatmap-context-card').trigger('mouseover', {force: true});
   cy.get('.flatmap-context-card').within(() => {
     cy.get('.publication-link').invoke('attr', 'href').as(`${species}_publicationLink`);
 
