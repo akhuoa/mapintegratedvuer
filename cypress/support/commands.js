@@ -176,6 +176,7 @@ Cypress.Commands.add('checkNeuronConnectionMode', (mode, searchTerm) => {
   cy.wait(2000);
   const tagTerm = `${mode[0]}:${searchTerm}`
   cy.get('.sidebar-container .filters').should('exist').contains(tagTerm);
+  cy.wait(10000);
   cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
   cy.get('.sidebar-container .el-card:visible .header .is-link > span').contains('Reset').click({ multiple: true })
   cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').clear();
