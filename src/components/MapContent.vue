@@ -11,6 +11,7 @@
         v-if="isReady"
         @onFullscreen="onFullscreen"
         :state="stateToSet"
+        :showLongLabel="showLongLabel"
         ref="flow"
         @vue:mounted="flowMounted"
       />
@@ -25,7 +26,7 @@ import EventBus from './EventBus';
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
-import { findSpeciesKey } from './scripts/utilities.js';
+import { defaultSpecies, findSpeciesKey } from './scripts/utilities.js';
 import { MapSvgSpriteColor} from '@abi-software/svg-sprite';
 import { initialState, getBodyScaffoldInfo } from "./scripts/utilities.js";
 import RetrieveContextCardMixin from "../mixins/RetrieveContextCardMixin.js"
@@ -58,6 +59,10 @@ export default {
     state: {
       type: Object,
       default: undefined
+    },
+    showLongLabel: {
+      type: Boolean,
+      default: true,
     },
     /**
      * The options include APIs and Keys.
@@ -295,9 +300,20 @@ export default {
             //  organ - Target organ, flatmap will conduct a local search
             //          using this
 
+            let key = '';
+
             //Look for the key in the available species array,
             //it will use the taxo and biologicalSex as hints.
-            const key = findSpeciesKey(state);
+            if (state.taxo) {
+              key = findSpeciesKey(state);
+            }
+
+            // If no taxo is provided, or no match found,
+            // use default species key
+            if (!key) {
+              key = defaultSpecies;
+            }
+
             if (key) {
               const currentState = this.getState();
               if (currentState && currentState.entries) {
@@ -395,7 +411,6 @@ export default {
       this.options.algoliaId ? this.settingsStore.updateAlgoliaId(this.options.algoliaId) : null;
       this.options.pennsieveApi ? this.settingsStore.updatePennsieveApi(this.options.pennsieveApi) : null;
       this.options.flatmapAPI ? this.settingsStore.updateFlatmapAPI(this.options.flatmapAPI) : null;
-      this.options.nlLinkPrefix ? this.settingsStore.updateNLLinkPrefix(this.options.nlLinkPrefix) : null;
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null;
     }
     this.settingsStore.updateAllClosable(this.allClosable);

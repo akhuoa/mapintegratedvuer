@@ -24,6 +24,7 @@
                 <el-button @click="setWholebody()" size="small">Set to Wholebody</el-button>
                 <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
                 <el-button @click="setSearch()" size="small">Set Search</el-button>
+                <el-button @click="toggleLongLabel()" size="small">Toggle Long Label</el-button>
               </div>
             </div>
             <template #reference>
@@ -40,6 +41,7 @@
         :startingMap="startingMap"
         :options="options"
         :state="state"
+        :showLongLabel="showLongLabel"
         :shareLink="shareLink"
         :useHelpModeDialog="true"
         :connectivityInfoSidebar="true"
@@ -158,6 +160,7 @@ export default {
       startingMap: "AC",
       ElIconSetting: shallowRef(ElIconSetting),
       routerIsReady: false,
+      showLongLabel: true,
     }
   },
   computed: {
@@ -174,7 +177,6 @@ export default {
         algoliaId: import.meta.env.VITE_ALGOLIA_ID,
         pennsieveApi: import.meta.env.VITE_PENNSIEVE_API_LOCATION,
         flatmapAPI: this.$route.query.flatmapserver ? this.$route.query.flatmapserver : import.meta.env.VITE_FLATMAPAPI_LOCATION,
-        nlLinkPrefix: import.meta.env.VITE_NL_LINK_PREFIX,
         rootUrl: import.meta.env.VITE_ROOT_URL,
       }
     }
@@ -310,6 +312,9 @@ export default {
     setSearch: function() {
       this.$refs.map.openSearch([], "10.26275/1uno-tynt");
     },
+    toggleLongLabel: function() {
+      this.showLongLabel = !this.showLongLabel;
+    },
     mapIsLoaded: function(map) {
       console.log("map is loaded", map)
       // map.changeViewingMode('Annotation')
@@ -425,13 +430,13 @@ export default {
           xmlhttp.send(JSON.stringify({"uuid": this.uuid}));
         }
 
-        if (taxo && type === 'ac') {
+        if (type === 'ac') {
           // Load AC map with different species
           this.startingMap = "AC";
           this.$nextTick(() => {
             const currentEntry = {
               type: "MultiFlatmap",
-              taxo: taxo,
+              taxo: taxo || '',
             };
             if (anatomy) {
               currentEntry.organ = anatomy;
