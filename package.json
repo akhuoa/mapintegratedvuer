@@ -14,7 +14,7 @@
     "test-unit": "mochapack --webpack-config test/unit/webpack.config.js --require test/unit/setup.js test/unit/**/*.spec.js",
     "test": "vitest --dom",
     "cypress-prepare": "node cypress/support/fileUtils.js",
-    "cypress": "^13.17.0",
+    "cypress": "cypress",
     "cypress-open": "npm run cypress-prepare && cypress open",
     "cypress-component": "npm run cypress-prepare && cypress run --component",
     "report:merge": "mochawesome-merge cypress/results/json/*json > cypress/results/mochawesome-bundle.json",
