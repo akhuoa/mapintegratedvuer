@@ -1,7 +1,12 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const pathSrc = path.resolve(__dirname, "./src");
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
@@ -9,7 +14,8 @@ export default defineConfig(({ command, mode }) => {
     css: {
       preprocessorOptions: {
         scss: {
-          additionalData: `@use './src/assets/styles' as *;`,
+          api: 'modern-compiler',
+          additionalData: `@use '@/assets/styles' as *;`,
         },
       },
     },
@@ -35,6 +41,11 @@ export default defineConfig(({ command, mode }) => {
     // to prevent reloading after optimized dependencies changed
     optimizeDeps: {
       exclude: ["vue-router"],
+    },
+    resolve: {
+      alias: {
+        "@": pathSrc,
+      },
     },
   };
 
