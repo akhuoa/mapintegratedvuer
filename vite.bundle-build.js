@@ -24,7 +24,10 @@ export default defineConfig((configEnv) => {
           "@abi-software/simulationvuer": "simulationvuer",
         },
         // keep css output name stable for the "./dist/style.css" export/import paths
-        assetFileNames: (assetInfo) => (assetInfo.name?.endsWith(".css") ? "style.css" : "assets/[name][extname]"),
+        assetFileNames: (assetInfo) =>
+          assetInfo.name?.endsWith(".css")
+            ? "style.css"
+            : "assets/[name][extname]",
       },
     },
   };
