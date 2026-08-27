@@ -228,6 +228,7 @@ describe('MapContent', () => {
 
     //Check for scaffolds and open it, should have three items in select now
     cy.get('.box-card .container button').contains('Scaffolds (2)').click();
+    cy.get('.gallery-strip .next').should('exist').click();
     cy.get('.gallery-strip').contains('54-8_metadata.json').should("exist");
     cy.get('.box-card :nth-child(1) > .details .el-button').filter(':visible').click();
     cy.get('.pane-1.contentvuer').should('have.length', 1);
