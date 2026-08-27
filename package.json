@@ -10,6 +10,7 @@
     "heroku-postbuild": "vite build",
     "build-bundle": "vite build -c vite.bundle-build.js",
     "build-static": "vite build -c vite.static-build.js",
+    "lint": "eslint .",
     "start": "vite build && vite preview",
     "test-unit": "mochapack --webpack-config test/unit/webpack.config.js --require test/unit/setup.js test/unit/**/*.spec.js",
     "test": "vitest --dom",
@@ -76,11 +77,11 @@
     "xss": "^1.0.15"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@pinia/testing": "^2.0.1",
     "@vue/test-utils": "^2.4.11",
     "@vuese/markdown-render": "^2.11.3",
     "auto-changelog": "^2.6.0",
-    "babel-eslint": "^10.1.0",
     "babel-plugin-component": "^1.1.1",
     "chokidar": "^5.0.0",
     "concurrently": "^9.2.4",
@@ -92,6 +93,7 @@
     "eslint": "^10.9.1",
     "eslint-plugin-cypress": "^7.0.0",
     "eslint-plugin-vue": "^10.10.0",
+    "globals": "^17.11.0",
     "happy-dom": "^20.11.6",
     "mocha": "^10.8.2",
     "mochapack": "^2.1.5",
@@ -111,31 +113,6 @@
     "@rollup/rollup-darwin-arm64": "4.63.0",
     "@rollup/rollup-linux-x64-gnu": "4.63.0",
     "@rollup/rollup-win32-x64-msvc": "4.63.0"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "rules": {},
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
-    "overrides": [
-      {
-        "files": [
-          "**/__tests__/*.{j,t}s?(x)",
-          "**/tests/unit/**/*.spec.{j,t}s?(x)"
-        ],
-        "env": {
-          "mocha": true
-        }
-      }
-    ]
   },
   "overrides": {
     "@abi-software/flatmapvuer": "$@abi-software/flatmapvuer",
