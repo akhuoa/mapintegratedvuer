@@ -3,7 +3,7 @@ import { MapContent } from '../../src/components/index.js';
 
 const neuronConnectionSettings = {
   'Destination': 'Heart',
-  'Origin': "Barrington", // TODO: Barrington's nucleus
+  'Origin': "Barrington's nucleus",
   'Via': 'C4 segment of cervical spinal cord',
   'All': 'Tongue'
 };
