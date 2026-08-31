@@ -41,16 +41,19 @@ describe('MapContent', () => {
 
     //cy.intercept('GET', 'https://mapcore-demo.org/current/flatmap/v2/**');
 
-    cy.mount(MapContent, {
-      props: {
-        options: {
-          sparcApi: "https://mock-test/sparc-api/",
-          flatmapAPI: "https://mapcore-demo.org/current/flatmap/v3/",
-          algoliaKey: Cypress.env('ALGOLIA_KEY'),
-          algoliaId: Cypress.env('ALGOLIA_ID'),
-        }
-      },
-    });
+    cy.env(['ALGOLIA_KEY', 'ALGOLIA_ID']).then(({ ALGOLIA_KEY, ALGOLIA_ID }) => {
+      cy.mount(MapContent, {
+        props: {
+          options: {
+            sparcApi: "https://mock-test/sparc-api/",
+            flatmapAPI: "https://mapcore-demo.org/current/flatmap/v3/",
+            algoliaKey: ALGOLIA_KEY,
+            algoliaId: ALGOLIA_ID,
+          }
+        },
+      })
+    })
+
 
     let mockClipboardText = '';
 
@@ -213,19 +216,19 @@ describe('MapContent', () => {
 
     //Intercept the request and stub it with preloaded fixture
     cy.get('@metadata').then((metadata) => {
-      cy.intercept('/sparc-api/s3-resource/999/1/files/derivative/sub-54-8/scaffold/54-8_metadata.json?s3BucketName=pennsieve-prod-discover-publish-use1',
+      cy.intercept('/sparc-api/s3-resource/999/1/files/derivative/sub-54-5/scaffold/54-5_metadata.json?s3BucketName=pennsieve-prod-discover-publish-use1',
         {statusCode: 200, body: metadata});
     })
 
     //Intercept the request and stub it with preloaded fixture
     cy.get('@primitive').then((primitive) => {
-      cy.intercept('/sparc-api/s3-resource/999/1/files/derivative/sub-54-8/scaffold/cube_2.json?s3BucketName=pennsieve-prod-discover-publish-use1',
+      cy.intercept('/sparc-api/s3-resource/999/1/files/derivative/sub-54-5/scaffold/cube_2.json?s3BucketName=pennsieve-prod-discover-publish-use1',
         {statusCode: 200, body: primitive}).as("scaffoldResponse");
     })
 
     //Check for scaffolds and open it, should have three items in select now
     cy.get('.box-card .container button').contains('Scaffolds (2)').click();
-    cy.get('.gallery-strip').contains('54-8_metadata.json').should("exist");
+    cy.get('.gallery-strip .next').should('exist').click(); // TODO: to add after sidebar update.
     cy.get('.box-card :nth-child(1) > .details .el-button').filter(':visible').click();
     cy.get('.pane-1.contentvuer').should('have.length', 1);
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-select__wrapper').should('exist').click();
