@@ -7,7 +7,7 @@ export default defineConfig((configEnv) => {
   const config = rootConfig(configEnv);
   config.build = {
     lib: {
-      entry: path.resolve(__dirname, "./src/components/index.js"),
+      entry: path.resolve(import.meta.dirname, "./src/components/index.js"),
       name: "MapintegratedVuer",
       fileName: "mapintegratedvuer",
     },
