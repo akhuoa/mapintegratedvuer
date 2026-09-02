@@ -121,5 +121,15 @@
   "browserslist": [
     "> 1%",
     "last 2 versions"
-  ]
+  ],
+  "allowScripts": {
+    "esbuild@0.21.5": true,
+    "nodent-runtime@3.2.1": true,
+    "fsevents@2.3.3": true,
+    "es5-ext@0.10.64": true,
+    "cypress@15.21.1": true,
+    "core-js-pure@3.50.0": true,
+    "core-js@3.50.0": true,
+    "@parcel/watcher@2.6.0": true
+  }
 }
