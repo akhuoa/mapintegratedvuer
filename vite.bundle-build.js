@@ -12,8 +12,20 @@ export default defineConfig((configEnv) => {
       fileName: "mapintegratedvuer",
     },
     rollupOptions: {
-      external: ["vue", "pinia", "@abi-software/flatmapvuer", "@abi-software/plotvuer",
-        "@abi-software/scaffoldvuer", "@abi-software/simulationvuer"],
+      external: [
+        "vue",
+        "pinia",
+        "@abi-software/flatmapvuer",
+        "@abi-software/plotvuer",
+        "@abi-software/scaffoldvuer",
+        "@abi-software/simulationvuer",
+        "@abi-software/map-utilities/dist/style.css",
+        "@abi-software/map-side-bar/dist/style.css",
+        "@abi-software/flatmapvuer/dist/style.css",
+        "@abi-software/plotvuer/dist/style.css",
+        "@abi-software/scaffoldvuer/dist/style.css",
+        "@abi-software/simulationvuer/dist/style.css",
+      ],
       output: {
         globals: {
           vue: "Vue",
