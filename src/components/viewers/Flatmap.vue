@@ -204,7 +204,9 @@ export default {
       }
     },
     changeViewingMode: function (modeName) {
-      this.$refs.flatmap.changeViewingMode(modeName);
+      if (this.$refs.flatmap) {
+        this.$refs.flatmap.changeViewingMode(modeName);
+      }
     },
     updateViewerSettings: function () {
       const {
@@ -218,12 +220,14 @@ export default {
 
       const currentFlatmap = this.$refs.flatmap;
 
-      currentFlatmap.changeViewingMode(viewingMode);
-      currentFlatmap.setFlightPath3D(flightPathDisplay);
-      currentFlatmap.setColour(organsDisplay);
-      currentFlatmap.setOutlines(outlinesDisplay);
-      currentFlatmap.backgroundChangeCallback(backgroundDisplay);
-      currentFlatmap.setConnectionType(connectionType);
+      if (currentFlatmap) {
+        currentFlatmap.changeViewingMode(viewingMode);
+        currentFlatmap.setFlightPath3D(flightPathDisplay);
+        currentFlatmap.setColour(organsDisplay);
+        currentFlatmap.setOutlines(outlinesDisplay);
+        currentFlatmap.backgroundChangeCallback(backgroundDisplay);
+        currentFlatmap.setConnectionType(connectionType);
+      }
     },
     setVisibilityFilter: function (payload) {
       if (this?.alive) {
