@@ -19,8 +19,6 @@ export default defineConfig((configEnv) => {
         "@abi-software/plotvuer",
         "@abi-software/scaffoldvuer",
         "@abi-software/simulationvuer",
-        "@abi-software/map-utilities/dist/style.css",
-        "@abi-software/map-side-bar/dist/style.css",
         "@abi-software/flatmapvuer/dist/style.css",
         "@abi-software/plotvuer/dist/style.css",
         "@abi-software/scaffoldvuer/dist/style.css",
