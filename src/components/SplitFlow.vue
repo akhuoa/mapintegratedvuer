@@ -31,7 +31,7 @@
           :connectivityKnowledge="connectivityKnowledge"
           :filterOptions="filterOptions"
           :showVisibilityFilter="showVisibilityFilter"
-          :showLongLabel="showLongLabel"
+          :showLongLabel="true"
           :showCellCards="showCellCards"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
@@ -72,7 +72,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import { provide, markRaw } from 'vue'
+import { provide, markRaw, computed } from 'vue';
 import Tagging from '../services/tagging.js';
 import DialogToolbarContent from "./DialogToolbarContent.vue";
 import EventBus from "./EventBus";
@@ -146,12 +146,13 @@ export default {
     SplitDialog,
     SideBar,
   },
-  setup() {
+  setup(props) {
     const mainStore = useMainStore();
-    provide('userApiKey', mainStore.userToken);
     const settings = useSettingsStore();
     let annotator = markRaw(new AnnotationService(`${settings.flatmapAPI}annotator`));
-    provide('$annotator', annotator)
+    provide('userApiKey', mainStore.userToken);
+    provide('$annotator', annotator);
+    provide('showLongLabel', computed(() => props.showLongLabel));
     return { annotator }
   },
   props: {
@@ -517,6 +518,9 @@ export default {
         }
         if (ck && ck['long-label']) {
           result['long-label'] = ck['long-label'];
+        }
+        if (ck && ck['expert-consultants']) {
+          result['expert-consultants'] = ck['expert-consultants'];
         }
         return result;
       });
