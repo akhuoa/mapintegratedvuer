@@ -3,7 +3,7 @@ name: Deploy Docs to Pages
 on:
   # Runs on pushes targeting the `docs` branch and `main` branch.
   push:
-    branches: ["docs", "main"]
+    branches: ['docs', 'main']
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -31,7 +31,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '18.17.1'
+          node-version: '24.20.0'
           cache: npm
 
       - name: Install dependencies

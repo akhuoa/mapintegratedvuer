@@ -1,39 +1,38 @@
-
 import { configureVisualRegression } from 'cypress-visual-regression';
 
 export default {
   defaultCommandTimeout: 10000,
-  reporter: "junit",
   experimentalMemoryManagement: true,
   numTestsKeptInMemory: 0,
-  reporter: "cypress-multi-reporters",
+  reporter: 'cypress-multi-reporters',
   reporterOptions: {
-    configFile: "reporter-config.json",
+    configFile: 'reporter-config.json',
+  },
+  expose: {
+    visualRegressionType: 'regression',
+    visualRegressionBaseDirectory: 'cypress/snapshots/MapContent.cy.js/base',
+    visualRegressionDiffDirectory: 'cypress/snapshots/diff',
+    visualRegressionGenerateDiff: 'always',
+    visualRegressionFailSilently: false,
   },
   component: {
     viewportWidth: 1440,
     viewportHeight: 900,
-    specPattern: "cypress/component/*.cy.js",
+    specPattern: 'cypress/component/*.cy.js',
     devServer: {
-      framework: "vue",
-      bundler: "vite",
-    },
-    env: {
-      visualRegressionType: 'regression',
-      visualRegressionBaseDirectory: 'cypress/snapshots/MapContent.cy.js/base',
-      visualRegressionDiffDirectory: 'cypress/snapshots/diff',
-      visualRegressionGenerateDiff: 'always',
-      visualRegressionFailSilently: false,
+      framework: 'vue',
+      bundler: 'vite',
     },
     screenshotsFolder: './cypress/snapshots',
     setupNodeEvents(on, config) {
       on('task', {
         log(message) {
-          console.log(message)
-          return null
+          console.log(message);
+          return null;
         },
       });
       configureVisualRegression(on);
+      return config;
     },
     trashAssetsBeforeRuns: false,
   },

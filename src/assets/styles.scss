@@ -1,9 +1,8 @@
-@import '_variables';
-
-@import url('https://fonts.googleapis.com/css?family=Asap:400,400i,500,600,700&display=swap');
+@use '_variables' as *;
+@forward '_variables';
 
 /* icon font path, required */
 $--color-primary: $app-primary-color !default;
 :root {
-  --el-color-primary: #8300BF;
+  --el-color-primary: #8300bf;
 }

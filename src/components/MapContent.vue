@@ -1,25 +1,25 @@
 <template>
-    <div
-      ref="MapApp"
-      v-loading="!isReady"
-      class="mapcontent"
-      element-loading-text="Loading..."
-      element-loading-background="rgba(0, 0, 0, 0.3)"
-    >
-      <map-svg-sprite-color/>
-      <SplitFlow
-        v-if="isReady"
-        @onFullscreen="onFullscreen"
-        :state="stateToSet"
-        :showLongLabel="showLongLabel"
-        ref="flow"
-        @vue:mounted="flowMounted"
-      />
-    </div>
+  <div
+    ref="MapApp"
+    v-loading="!isReady"
+    class="mapcontent"
+    element-loading-text="Loading..."
+    element-loading-background="rgba(0, 0, 0, 0.3)"
+  >
+    <map-svg-sprite-color />
+    <SplitFlow
+      v-if="isReady"
+      @onFullscreen="onFullscreen"
+      :state="stateToSet"
+      :showLongLabel="showLongLabel"
+      ref="flow"
+      @vue:mounted="flowMounted"
+    />
+  </div>
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
+import { computed } from 'vue';
 import Tagging from '../services/tagging.js';
 import SplitFlow from './SplitFlow.vue';
 import EventBus from './EventBus';
@@ -27,21 +27,17 @@ import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { defaultSpecies, findSpeciesKey } from './scripts/utilities.js';
-import { MapSvgSpriteColor} from '@abi-software/svg-sprite';
-import { initialState, getBodyScaffoldInfo } from "./scripts/utilities.js";
-import RetrieveContextCardMixin from "../mixins/RetrieveContextCardMixin.js"
-import {
-  ElLoading as Loading
-} from "element-plus";
+import { MapSvgSpriteColor } from '@abi-software/svg-sprite';
+import { initialState, getBodyScaffoldInfo } from './scripts/utilities.js';
+import RetrieveContextCardMixin from '../mixins/RetrieveContextCardMixin.js';
 
 /**
  * Content of the app. More work flows will be added here.
  */
 export default {
-  name: "MapContent",
+  name: 'MapContent',
   components: {
     MapSvgSpriteColor,
-    Loading,
     SplitFlow,
   },
   mixins: [RetrieveContextCardMixin],
@@ -51,16 +47,24 @@ export default {
      */
     shareLink: {
       type: String,
-      default: undefined
+      default: undefined,
     },
     /**
      * State containing state of the scaffold.
      */
     state: {
       type: Object,
-      default: undefined
+      default: undefined,
     },
     showLongLabel: {
+      type: Boolean,
+      default: true,
+    },
+    truncateLongLabel: {
+      type: Boolean,
+      default: true,
+    },
+    showIdInTooltip: {
       type: Boolean,
       default: true,
     },
@@ -70,14 +74,14 @@ export default {
     options: {
       type: Object,
       default: () => ({}),
-      required: true
+      required: true,
     },
     /**
      * New option to start the map in AC, FC or WholeBody.
      */
     startingMap: {
       type: String,
-      default: "AC"
+      default: 'AC',
     },
     /**
      * To use help-mode-dialog when user clicks "Help".
@@ -100,7 +104,7 @@ export default {
      * The option to show annotation in sidebar.
      * Default is `true`. Set `false` to show as popup on map.
      */
-     annotationSidebar: {
+    annotationSidebar: {
       type: Boolean,
       default: true,
     },
@@ -108,7 +112,7 @@ export default {
      * All panes including primary default viewer will be closable
      * when this is set to true.
      */
-     allClosable: {
+    allClosable: {
       type: Boolean,
       default: true,
     },
@@ -128,11 +132,31 @@ export default {
       type: Boolean,
       default: true,
     },
+    /**
+     * The option to open a species from the species dropdown's "open new view"
+     * in a split view. From a single view, it opens as a vertical split on the right.
+     * From a split view, it replaces the other pane's view.
+     * Default is `true`.
+     */
+    openNewSpeciesInSplitView: {
+      type: Boolean,
+      default: true,
+    },
+    /**
+     * The `crossorigin` attribute value used for images.
+     */
+    crossorigin: {
+      type: String,
+      default: 'anonymous',
+    },
   },
   provide: function () {
     return {
+      crossorigin: computed(() => this.crossorigin),
       showGlobalSettings: this.showGlobalSettings,
       showOpenMapButton: this.showOpenMapButton,
+      truncateLongLabel: computed(() => this.truncateLongLabel),
+      showIdInTooltip: computed(() => this.showIdInTooltip),
     };
   },
   data: function () {
@@ -140,7 +164,7 @@ export default {
       isReady: false,
       initialState: undefined,
       displaySearchFromQuery: '',
-    }
+    };
   },
   methods: {
     /**
@@ -148,31 +172,35 @@ export default {
      * Function to check whether it is in fullscreen mode or not.
      *
      */
-    isFullscreen: function(){
-      return (document.fullscreenElement || document.webkitFullscreenElement ||
-        document.mozFullScreenElement || document.msFullscreenElement )
+    isFullscreen: function () {
+      return (
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+      );
     },
     /**
      * @public
      * Function to toggle fullscreen.
      * @arg `fullscreenReq`
      */
-    onFullscreen: function(fullscreenReq) {
+    onFullscreen: function (fullscreenReq) {
       //If a request is sent, try it
-      if (fullscreenReq !== undefined){
-        if (fullscreenReq && !this.isFullscreen()){
-          this.goFullscreen()
+      if (fullscreenReq !== undefined) {
+        if (fullscreenReq && !this.isFullscreen()) {
+          this.goFullscreen();
         }
-        if(!fullscreenReq && this.isFullscreen()){
-          this.leaveFullscreen()
+        if (!fullscreenReq && this.isFullscreen()) {
+          this.leaveFullscreen();
         }
       }
       // Else we toggle fullscreen
-      else{
-        if(this.isFullscreen()){
-          this.leaveFullscreen()
+      else {
+        if (this.isFullscreen()) {
+          this.leaveFullscreen();
         } else {
-          this.goFullscreen()
+          this.goFullscreen();
         }
       }
     },
@@ -180,15 +208,18 @@ export default {
      * @public
      * Function to leave fullscreen mode.
      */
-    leaveFullscreen: function(){
+    leaveFullscreen: function () {
       if (this.isFullscreen()) {
         if (document.exitFullscreen) {
           document.exitFullscreen();
-        } else if (document.mozCancelFullScreen) { /* Firefox */
+        } else if (document.mozCancelFullScreen) {
+          /* Firefox */
           document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+        } else if (document.webkitExitFullscreen) {
+          /* Chrome, Safari and Opera */
           document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) { /* IE/Edge */
+        } else if (document.msExitFullscreen) {
+          /* IE/Edge */
           document.msExitFullscreen();
         }
 
@@ -200,15 +231,18 @@ export default {
      * @public
      * Function to go to fullscreen mode.
      */
-    goFullscreen: function(){
+    goFullscreen: function () {
       let mapApp = this.$refs.MapApp;
       if (mapApp.requestFullscreen) {
         mapApp.requestFullscreen();
-      } else if (mapApp.mozRequestFullScreen) { /* Firefox */
+      } else if (mapApp.mozRequestFullScreen) {
+        /* Firefox */
         mapApp.mozRequestFullScreen();
-      } else if (mapApp.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+      } else if (mapApp.webkitRequestFullscreen) {
+        /* Chrome, Safari and Opera */
         mapApp.webkitRequestFullscreen();
-      } else if (parent.msRequestFullscreen) { /* IE/Edge */
+      } else if (parent.msRequestFullscreen) {
+        /* IE/Edge */
         mapApp.msRequestFullscreen();
       }
 
@@ -228,7 +262,7 @@ export default {
      *
      * @arg `state`
      */
-    setState: function(state){
+    setState: function (state) {
       return this.$refs.flow.setState(state);
     },
     /**
@@ -239,7 +273,7 @@ export default {
      * state of anonymous annotations.
      * @arg `anonymousAnnotations`
      */
-    getState: function(anonymousAnnotations = false){
+    getState: function (anonymousAnnotations = false) {
       return this.$refs.flow.getState(anonymousAnnotations);
     },
     /**
@@ -250,9 +284,9 @@ export default {
      * instead change the current entry by setting the state.
      * @arg `state`
      */
-    setCurrentEntry: async function(state) {
+    setCurrentEntry: async function (state) {
       if (state && state.type) {
-        if (state.type === "Scaffold" && (state.url || state.isBodyScaffold)) {
+        if (state.type === 'Scaffold' && (state.url || state.isBodyScaffold)) {
           //State for scaffold containing the following items:
           //  label - Setting the name of the dialog
           //  region - Which region/group currently focusing on
@@ -278,7 +312,7 @@ export default {
             newView = { ...newView, ...contextCardInfo };
           }
           this.$refs.flow.createNewEntry(newView);
-        } else if (state.type === "MultiFlatmap") {
+        } else if (state.type === 'MultiFlatmap') {
           if (state.resource) {
             //State for new multiflatmap containing the following items:
             //  label - Setting the name of the dialog
@@ -292,7 +326,11 @@ export default {
               discoverId: state.dataset_id,
               version: state.dataset_version,
             };
-            this.$refs.flow.createNewEntry(newView);
+            // sourceId is only provided by "open new view" from the species dropdown
+            this.$refs.flow.createNewEntry(newView, {
+              openInSplitView: this.openNewSpeciesInSplitView && state.sourceId !== undefined,
+              sourceId: state.sourceId,
+            });
           } else {
             //State for multiflatmap containing the following items:
             //  taxo - taxo of species to set
@@ -319,7 +357,7 @@ export default {
               if (currentState && currentState.entries) {
                 for (let i = 0; i < currentState.entries.length; i++) {
                   const entry = currentState.entries[i];
-                  if (entry.type === "MultiFlatmap") {
+                  if (entry.type === 'MultiFlatmap') {
                     entry.resource = key;
                     entry.state = { species: key };
                     if (state.organ || state.uuid) {
@@ -341,7 +379,7 @@ export default {
               }
             }
           }
-        } else if (state.type === "Flatmap") {
+        } else if (state.type === 'Flatmap') {
           //State for flatmap containing the following items:
           //  label - Setting the name of the dialog
           //  resource - the url to metadata
@@ -364,7 +402,7 @@ export default {
      * @arg `facets`,
      * @arg `query`
      */
-    openSearch: function(facets, query) {
+    openSearch: function (facets, query) {
       return this.$refs.flow.openSearch(facets, query);
     },
     /**
@@ -376,15 +414,15 @@ export default {
       /**
        * This event emit when the component is mounted.
        */
-      this.$emit("isReady");
+      this.$emit('isReady');
 
       // GA Tagging
       // Page view tracking for maps' buttons click on portal
       // category: AC | FC | WholeBody
       Tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': 'portal_maps_page_view',
-        'category': this.startingMap
+        event: 'interaction_event',
+        event_name: 'portal_maps_page_view',
+        category: this.startingMap,
       });
     },
   },
@@ -395,21 +433,25 @@ export default {
     },
   },
   watch: {
-    "shareLink" : {
+    shareLink: {
       handler: function (newLink) {
         this.settingsStore.updateShareLink(newLink);
       },
       immediate: true,
     },
   },
-  beforeMount: function() {
+  beforeMount: function () {
     if (this.options) {
       // Split options prop up to commit to the store
       this.options.sparcApi ? this.settingsStore.updateSparcAPI(this.options.sparcApi) : null;
-      this.options.algoliaIndex ? this.settingsStore.updateAlgoliaIndex(this.options.algoliaIndex) : null;
+      this.options.algoliaIndex
+        ? this.settingsStore.updateAlgoliaIndex(this.options.algoliaIndex)
+        : null;
       this.options.algoliaKey ? this.settingsStore.updateAlgoliaKey(this.options.algoliaKey) : null;
       this.options.algoliaId ? this.settingsStore.updateAlgoliaId(this.options.algoliaId) : null;
-      this.options.pennsieveApi ? this.settingsStore.updatePennsieveApi(this.options.pennsieveApi) : null;
+      this.options.pennsieveApi
+        ? this.settingsStore.updatePennsieveApi(this.options.pennsieveApi)
+        : null;
       this.options.flatmapAPI ? this.settingsStore.updateFlatmapAPI(this.options.flatmapAPI) : null;
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null;
     }
@@ -417,12 +459,12 @@ export default {
     this.splitFlowStore?.reset();
     this.splitFlowStore?.getAvailableTerms(this.settingsStore.sparcApi);
   },
-  mounted: async function() {
-    EventBus.on("updateShareLinkRequested", (data) => {
+  mounted: async function () {
+    EventBus.on('updateShareLinkRequested', (data) => {
       /**
        * This event emits when the share link is requested.
        */
-      this.$emit("updateShareLinkRequested", data);
+      this.$emit('updateShareLinkRequested', data);
     });
     EventBus.on('trackEvent', (taggingData) => {
       /**
@@ -433,30 +475,34 @@ export default {
     if (!this.state) {
       this.initialState = await initialState(this.startingMap, this.options.sparcApi);
     }
-    EventBus.on("mapLoaded", (map) => {
+    EventBus.on('mapLoaded', (map) => {
       // Check if there is a search term to display
       if (this.displaySearchFromQuery) {
         setTimeout(() => {
-          this.$refs.flow.onDisplaySearch({term: this.displaySearchFromQuery});
+          this.$refs.flow.onDisplaySearch({ term: this.displaySearchFromQuery });
           this.displaySearchFromQuery = ''; // Clear after using it from first load
         });
       }
       /**
        * This event emit when the map is loaded.
        */
-      this.$emit("mapLoaded", map);
+      this.$emit('mapLoaded', map);
+    });
+    // Allow other components to request opening a map via setCurrentEntry
+    EventBus.on('SetCurrentEntry', (entry) => {
+      if (entry) {
+        this.setCurrentEntry(entry);
+      }
     });
     this.isReady = true;
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
     this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
     this.settingsStore.updateAnnotationSidebar(this.annotationSidebar);
-  }
-}
-
+  },
+};
 </script>
 
 <style scoped lang="scss">
-
 :deep(.el-loading-spinner) {
   .path {
     stroke: $app-primary-color;
@@ -475,19 +521,16 @@ export default {
 
 .mapcontent {
   height: 100%;
-  width:100%;
-  z-index:1;
+  width: 100%;
+  z-index: 1;
 }
-
 </style>
 
 <style lang="scss">
-
 .mapcontent {
-  --el-color-primary: #8300BF;
+  --el-color-primary: #8300bf;
   --el-color-primary-light-7: #dab3ec;
   --el-color-primary-light-8: #e6ccf2;
   --el-color-primary-light-9: #f3e6f9;
 }
-
 </style>
